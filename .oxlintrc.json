@@ -1,10 +1,33 @@
 {
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "plugins": ["typescript", "import", "node"],
+  "categories": { "correctness": "error" },
   "rules": {
-    "typescript/no-explicit-any": "off",
-    "typescript/no-floating-promises": "error"
+    "no-unused-vars": "error",
+    "typescript/no-explicit-any": "error",
+    "max-classes-per-file": ["error", 1],
+    "max-lines": ["error", { "max": 200, "skipBlankLines": true, "skipComments": true }],
+    "node/no-process-env": "error"
   },
-  "env": {
-    "node": true
-  }
+  "overrides": [
+    {
+      "files": ["src/config/**", "drizzle.config.ts"],
+      "rules": { "node/no-process-env": "off" }
+    },
+    {
+      "files": ["**/*.service.ts"],
+      "rules": {
+        "no-restricted-imports": [
+          "error",
+          {
+            "patterns": [
+              {
+                "group": ["drizzle-orm", "drizzle-orm/*", "pg", "**/database/**"],
+                "message": "Service veritabanına dokunmaz; repository kullan."
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
 }
