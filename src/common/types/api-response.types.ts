@@ -19,5 +19,6 @@ export interface ApiFailure {
     code: string;
     message: string;
     details?: ErrorDetail[];
+    requestId?: string;
   };
 }
