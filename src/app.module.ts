@@ -5,9 +5,10 @@ import { ResponseTransformInterceptor } from './common/interceptors/response-tra
 import { AppConfigModule } from './config/app-config.module';
 import { DatabaseModule } from './database/database.module';
 import { AppLoggerModule } from './common/logging/app-logger.module';
+import { HealthModule } from './modules/health/health.module';
 
 @Module({
-  imports: [AppConfigModule, DatabaseModule, AppLoggerModule],
+  imports: [AppConfigModule, DatabaseModule, AppLoggerModule, HealthModule],
   providers: [
     { provide: APP_FILTER, useClass: GlobalExceptionFilter },
     { provide: APP_INTERCEPTOR, useClass: ResponseTransformInterceptor },
