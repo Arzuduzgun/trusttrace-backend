@@ -1,3 +1,4 @@
+//// .env'i açılışta bir kez doğrular ve AppConfigService'i her modüle açar (@Global).
 import { Global, Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { AppConfigService } from './app-config.service';

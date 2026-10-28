@@ -1,3 +1,4 @@
+//// Config okumanın tek kapısı. process.env'e sadece config klasörü dokunur.
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import type { Env } from './env.schema';

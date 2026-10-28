@@ -7,9 +7,17 @@ import { DatabaseModule } from './database/database.module';
 import { AppLoggerModule } from './common/logging/app-logger.module';
 import { HealthModule } from './modules/health/health.module';
 import { UsersModule } from './modules/users/users.module';
+import { AuthModule } from './modules/auth/auth.module';
 
 @Module({
-  imports: [AppConfigModule, DatabaseModule, AppLoggerModule, HealthModule, UsersModule],
+  imports: [
+    AppConfigModule,
+    DatabaseModule,
+    AppLoggerModule,
+    HealthModule,
+    UsersModule,
+    AuthModule,
+  ],
   providers: [
     { provide: APP_FILTER, useClass: GlobalExceptionFilter },
     { provide: APP_INTERCEPTOR, useClass: ResponseTransformInterceptor },

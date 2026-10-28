@@ -8,6 +8,13 @@
       "when": 1793102305069,
       "tag": "0000_polite_hex",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1793177105243,
+      "tag": "0001_careless_silverclaw",
+      "breakpoints": true
     }
   ]
 }

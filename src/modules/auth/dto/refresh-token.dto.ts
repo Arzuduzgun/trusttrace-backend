@@ -1,0 +1,9 @@
+// Refresh ve logout için gönderilen refresh token.
+import { IsString, MaxLength, MinLength } from 'class-validator';
+
+export class RefreshTokenDto {
+  @IsString()
+  @MinLength(1)
+  @MaxLength(200)
+  refreshToken!: string;
+}

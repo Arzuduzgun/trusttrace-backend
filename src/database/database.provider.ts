@@ -1,3 +1,4 @@
+// Açılışta veritabanı bağlantı havuzunu bir kez kurar ve DRIZZLE etiketiyle teslim eder.
 import type { Provider } from '@nestjs/common';
 import { drizzle } from 'drizzle-orm/node-postgres';
 import { Pool } from 'pg';
