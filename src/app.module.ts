@@ -6,9 +6,10 @@ import { AppConfigModule } from './config/app-config.module';
 import { DatabaseModule } from './database/database.module';
 import { AppLoggerModule } from './common/logging/app-logger.module';
 import { HealthModule } from './modules/health/health.module';
+import { UsersModule } from './modules/users/users.module';
 
 @Module({
-  imports: [AppConfigModule, DatabaseModule, AppLoggerModule, HealthModule],
+  imports: [AppConfigModule, DatabaseModule, AppLoggerModule, HealthModule, UsersModule],
   providers: [
     { provide: APP_FILTER, useClass: GlobalExceptionFilter },
     { provide: APP_INTERCEPTOR, useClass: ResponseTransformInterceptor },

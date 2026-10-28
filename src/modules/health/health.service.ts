@@ -26,7 +26,9 @@ export class HealthService {
       await Promise.race([check(), timeout]);
       return 'up';
     } catch (error) {
-      this.logger.warn(`${name} is down: ${error instanceof Error ? error.message : String(error)}`);
+      this.logger.warn(
+        `${name} is down: ${error instanceof Error ? error.message : String(error)}`,
+      );
       return 'down';
     }
   }
