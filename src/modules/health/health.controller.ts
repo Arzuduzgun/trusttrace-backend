@@ -3,8 +3,10 @@ import type { Response } from 'express';
 import { RawResponse } from '../../common/decorators/raw-response.decorator';
 import { HealthService } from './health.service';
 import type { ReadinessReport } from './health.types';
+import { Public } from '../../common/decorators/public.decorator';
 
 @RawResponse()
+@Public()
 @Controller('health')
 export class HealthController {
   constructor(private readonly healthService: HealthService) {}

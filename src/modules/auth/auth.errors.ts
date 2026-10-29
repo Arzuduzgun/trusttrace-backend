@@ -28,4 +28,29 @@ export const AUTH_ERRORS = {
     status: HttpStatus.UNAUTHORIZED,
     message: 'Güvenlik nedeniyle oturum kapatıldı, lütfen tekrar giriş yapın.',
   },
+  AUTH_TOKEN_MISSING: {
+    code: 'AUTH_TOKEN_MISSING',
+    status: HttpStatus.UNAUTHORIZED,
+    message: 'Bu işlem için giriş yapmalısınız.',
+  },
+  AUTH_TOKEN_EXPIRED: {
+    code: 'AUTH_TOKEN_EXPIRED',
+    status: HttpStatus.UNAUTHORIZED,
+    message: 'Oturum süresi doldu.',
+  },
+  AUTH_TOKEN_INVALID: {
+    code: 'AUTH_TOKEN_INVALID',
+    status: HttpStatus.UNAUTHORIZED,
+    message: 'Geçersiz oturum.',
+  },
+  AUTH_TOKEN_REVOKED: {
+    code: 'AUTH_TOKEN_REVOKED',
+    status: HttpStatus.UNAUTHORIZED,
+    message: 'Oturum sonlandırıldı, lütfen tekrar giriş yapın.',
+  },
+  AUTH_FORBIDDEN_ROLE: {
+    code: 'AUTH_FORBIDDEN_ROLE',
+    status: HttpStatus.FORBIDDEN,
+    message: 'Bu işlem için yetkiniz yok.',
+  },
 } as const satisfies ErrorCatalog;

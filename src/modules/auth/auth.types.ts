@@ -30,3 +30,8 @@ export interface RefreshTokenRecord {
   expiresAt: Date;
   revokedAt: Date | null;
 }
+
+export interface VerifiedAccessToken extends AccessTokenPayload {
+  iat: number;
+  exp: number;
+}
