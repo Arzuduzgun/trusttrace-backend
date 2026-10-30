@@ -9,6 +9,15 @@ import type { User } from '../users/users.types';
 import { CHAT_ERRORS } from './chat.errors';
 import { MessageResponseDto } from './dto/message-response.dto';
 import { MessagesRepository } from './messages.repository';
+import { MessageStatus } from './messages.types';
+import { ScanVerdict } from '../moderation/moderation.types';
+import { ContentScannerService } from '../moderation/content-scanner.service';
+
+const STATUS_BY_VERDICT: Record<ScanVerdict, MessageStatus> = {
+  CLEAN: 'DELIVERED',
+  FLAG: 'FLAGGED',
+  BLOCK: 'BLOCKED',
+};
 
 @Injectable()
 export class MessagesService {
@@ -16,6 +25,7 @@ export class MessagesService {
     private readonly messagesRepository: MessagesRepository,
     private readonly roomsService: RoomsService,
     private readonly usersService: UsersService,
+    private readonly contentScanner: ContentScannerService,
   ) {}
 
   async listHistory(
@@ -52,17 +62,22 @@ export class MessagesService {
     body: string,
     clientMessageId: string,
   ): Promise<MessageResponseDto> {
-    const room = await this.roomsService.assertCanAccess(roomId, sender);
+    const currentSender = await this.usersService.getById(sender.id);
+    if (currentSender.status !== 'ACTIVE') {
+      throw new DomainException(CHAT_ERRORS.CHAT_SENDER_SUSPENDED);
+    }
+    const room = await this.roomsService.assertCanAccess(roomId, currentSender);
     if (room.status === 'CLOSED') {
       throw new DomainException(CHAT_ERRORS.CHAT_ROOM_CLOSED);
     }
+    const scan = await this.contentScanner.scan(body);
     const message = await this.messagesRepository.insertOnce({
       roomId,
-      senderId: sender.id,
+      senderId: currentSender.id,
       body: body.trim(),
       clientMessageId,
-      status: 'DELIVERED',
+      status: STATUS_BY_VERDICT[scan.verdict],
     });
-    return MessageResponseDto.from(message, sender.displayName);
+    return MessageResponseDto.from(message, currentSender.displayName);
   }
 }

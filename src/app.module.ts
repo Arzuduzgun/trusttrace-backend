@@ -10,6 +10,7 @@ import { UsersModule } from './modules/users/users.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { RoomsModule } from './modules/rooms/rooms.module';
 import { ChatModule } from './modules/chat/chat.module';
+import { ModerationModule } from './modules/moderation/moderation.module';
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { ChatModule } from './modules/chat/chat.module';
     AuthModule,
     RoomsModule,
     ChatModule,
+    ModerationModule,
   ],
   providers: [
     { provide: APP_FILTER, useClass: GlobalExceptionFilter },

@@ -104,7 +104,9 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
       dto.body,
       dto.clientMessageId,
     );
-    this.server.to(roomChannel(dto.roomId)).emit(CHAT_EVENTS.NEW_MESSAGE, message);
+    if (message.status !== 'BLOCKED') {
+      this.server.to(roomChannel(dto.roomId)).emit(CHAT_EVENTS.NEW_MESSAGE, message);
+    }
     return { ok: true, data: message };
   }
 
