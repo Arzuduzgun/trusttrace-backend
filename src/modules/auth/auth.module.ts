@@ -10,6 +10,7 @@ import { TokenService } from './token.service';
 import { APP_GUARD } from '@nestjs/core';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { RolesGuard } from './guards/roles.guard';
+import { WsTicketService } from './ws-ticket.service';
 
 @Module({
   imports: [UsersModule, JwtModule.register({})],
@@ -18,9 +19,11 @@ import { RolesGuard } from './guards/roles.guard';
     AuthService,
     PasswordService,
     TokenService,
+    WsTicketService,
     RefreshTokensRepository,
     { provide: APP_GUARD, useClass: JwtAuthGuard },
     { provide: APP_GUARD, useClass: RolesGuard },
   ],
+  exports: [WsTicketService],
 })
 export class AuthModule {}

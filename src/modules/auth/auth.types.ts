@@ -35,3 +35,8 @@ export interface VerifiedAccessToken extends AccessTokenPayload {
   iat: number;
   exp: number;
 }
+
+export interface WsTicket {
+  ticket: string;
+  expiresIn: number;
+}
