@@ -32,4 +32,12 @@ export class UsersService {
   create(input: NewUser): Promise<User> {
     return this.usersRepository.create({ ...input, email: normalizeEmail(input.email) });
   }
+
+  listActiveAgents(): Promise<User[]> {
+    return this.usersRepository.listActiveByRole('AGENT');
+  }
+
+  findDisplayNames(ids: string[]): Promise<Map<string, string>> {
+    return this.usersRepository.findDisplayNames(ids);
+  }
 }

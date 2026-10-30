@@ -17,4 +17,9 @@ export const COMMON_ERRORS = {
     status: HttpStatus.INTERNAL_SERVER_ERROR,
     message: 'Beklenmeyen bir hata oluştu.',
   },
+  INVALID_CURSOR: {
+    code: 'INVALID_CURSOR',
+    status: HttpStatus.BAD_REQUEST,
+    message: 'Sayfalama imleci geçersiz.',
+  },
 } as const satisfies ErrorCatalog;

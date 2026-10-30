@@ -15,6 +15,20 @@
       "when": 1793177105243,
       "tag": "0001_careless_silverclaw",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1793347432360,
+      "tag": "0002_faithful_runaways",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1793362263096,
+      "tag": "0003_sweet_cobalt_man",
+      "breakpoints": true
     }
   ]
 }

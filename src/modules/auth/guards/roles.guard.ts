@@ -11,6 +11,9 @@ import { AUTH_ERRORS } from '../auth.errors';
 export class RolesGuard implements CanActivate {
   constructor(private readonly reflector: Reflector) {}
 
+  /*Endpoint’te @Roles() etiketi yoksa → giriş yapmış herkes geçer.
+  Etiket varsa → kullanıcının rolü listede mi diye bakar. Değilse AUTH_FORBIDDEN_ROLE (403) fırlatır. 
+  Hata cevabının details kısmında hangi rollerin gerektiği yazar.*/
   canActivate(context: ExecutionContext): boolean {
     const requiredRoles = this.reflector.getAllAndOverride<UserRole[] | undefined>(ROLES_KEY, [
       context.getHandler(),

@@ -1,13 +1,13 @@
 //Users tablosunun bütün SQL’i burada.
 import { Inject, Injectable } from '@nestjs/common';
-import { eq } from 'drizzle-orm';
+import { eq, and, inArray } from 'drizzle-orm';
 import { DomainException } from '../../common/errors/domain.exception';
 import { DRIZZLE } from '../../database/database.tokens';
 import type { Database } from '../../database/database.types';
 import { isUniqueViolation } from '../../database/postgres-errors';
 import { users } from '../../database/schema';
 import { USER_ERRORS } from './users.errors';
-import type { NewUser, User, UserCredentials } from './users.types';
+import type { NewUser, User, UserCredentials, UserRole } from './users.types';
 
 //Hangi kolonların okunacağı. passwordHash bu listede yok, yani hash normal sorgularla hiç okunmaz.
 const USER_COLUMNS = {
@@ -57,5 +57,24 @@ export class UsersRepository {
       }
       throw error;
     }
+  }
+
+  //Verilen roldeki aktif kullanıcıları getirir.
+  async listActiveByRole(role: UserRole): Promise<User[]> {
+    return this.db
+      .select(USER_COLUMNS)
+      .from(users)
+      .where(and(eq(users.role, role), eq(users.status, 'ACTIVE')));
+  }
+  //Mesaj listesinde “kim yazdı” adıyla görünmeli.Verilen id’lerin isimlerini tek sorguda getirir.
+  async findDisplayNames(ids: string[]): Promise<Map<string, string>> {
+    if (ids.length === 0) {
+      return new Map();
+    }
+    const rows = await this.db
+      .select({ id: users.id, displayName: users.displayName })
+      .from(users)
+      .where(inArray(users.id, ids));
+    return new Map(rows.map((row) => [row.id, row.displayName]));
   }
 }

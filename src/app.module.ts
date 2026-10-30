@@ -8,6 +8,8 @@ import { AppLoggerModule } from './common/logging/app-logger.module';
 import { HealthModule } from './modules/health/health.module';
 import { UsersModule } from './modules/users/users.module';
 import { AuthModule } from './modules/auth/auth.module';
+import { RoomsModule } from './modules/rooms/rooms.module';
+import { ChatModule } from './modules/chat/chat.module';
 
 @Module({
   imports: [
@@ -17,6 +19,8 @@ import { AuthModule } from './modules/auth/auth.module';
     HealthModule,
     UsersModule,
     AuthModule,
+    RoomsModule,
+    ChatModule,
   ],
   providers: [
     { provide: APP_FILTER, useClass: GlobalExceptionFilter },
