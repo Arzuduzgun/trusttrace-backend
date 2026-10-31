@@ -10,7 +10,7 @@
   },
   "overrides": [
     {
-      "files": ["src/config/**", "drizzle.config.ts"],
+      "files": ["src/config/**", "drizzle.config.ts", "scripts/**"],
       "rules": { "node/no-process-env": "off" }
     },
     {

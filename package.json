@@ -25,7 +25,8 @@
     "lint:check": "oxlint && pnpm fmt:check && tsc --noEmit",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
-    "db:studio": "drizzle-kit studio"
+    "db:studio": "drizzle-kit studio",
+    "db:seed": "tsx scripts/seed/seed.ts"
   },
   "dependencies": {
     "@nestjs/common": "^12.3.2",
@@ -73,6 +74,7 @@
     "ts-loader": "^9.5.2",
     "ts-node": "^10.9.2",
     "tsconfig-paths": "^4.2.0",
+    "tsx": "^4.23.15",
     "typescript": "^6.0.2"
   }
 }
