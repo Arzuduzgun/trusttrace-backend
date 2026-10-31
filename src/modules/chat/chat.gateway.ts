@@ -23,6 +23,7 @@ import { JoinRoomDto } from './dto/join-room.dto';
 import { MessageResponseDto } from './dto/message-response.dto';
 import { SendMessageDto } from './dto/send-message.dto';
 import { MessagesService } from './messages.service';
+import { ChatNotifierService } from './chat-notifier.service';
 
 //Gelen veriyi DTO kurallarına göre kontrol eder.
 @UsePipes(
@@ -49,9 +50,11 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
     private readonly usersService: UsersService,
     private readonly roomsService: RoomsService,
     private readonly messagesService: MessagesService,
+    private readonly chatNotifier: ChatNotifierService,
   ) {}
   // “kontrol etmeden açma” mantığı burada
   afterInit(server: Namespace): void {
+    this.chatNotifier.attach(server);
     server.use(async (socket, next) => {
       try {
         await this.authenticate(socket);

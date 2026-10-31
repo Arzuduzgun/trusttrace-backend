@@ -10,4 +10,12 @@ export class ModerationEventsService {
   list(filter: ModerationEventFilter): Promise<ModerationEvent[]> {
     return this.eventsRepository.list(filter);
   }
+
+  findById(id: string): Promise<ModerationEvent | null> {
+    return this.eventsRepository.findById(id);
+  }
+
+  hasRevocation(eventId: string): Promise<boolean> {
+    return this.eventsRepository.hasRevocation(eventId);
+  }
 }

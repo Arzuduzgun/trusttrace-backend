@@ -12,6 +12,7 @@ import { RoomsModule } from './modules/rooms/rooms.module';
 import { ChatModule } from './modules/chat/chat.module';
 import { ModerationModule } from './modules/moderation/moderation.module';
 import { ModerationEventsModule } from './modules/moderation-events/moderation-events.module';
+import { SanctionsModule } from './modules/sanctions/sanctions.module';
 
 @Module({
   imports: [
@@ -25,6 +26,7 @@ import { ModerationEventsModule } from './modules/moderation-events/moderation-e
     ChatModule,
     ModerationModule,
     ModerationEventsModule,
+    SanctionsModule,
   ],
   providers: [
     { provide: APP_FILTER, useClass: GlobalExceptionFilter },

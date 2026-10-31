@@ -13,6 +13,7 @@ import { Message, MessageStatus } from './messages.types';
 import { ScanResult, ScanVerdict } from '../moderation/moderation.types';
 import { ContentScannerService } from '../moderation/content-scanner.service';
 import { NewModerationEvent } from '../moderation-events/moderation-events.types';
+import { canSendMessages } from '../users/user-status';
 
 const STATUS_BY_VERDICT: Record<ScanVerdict, MessageStatus> = {
   CLEAN: 'DELIVERED',
@@ -64,7 +65,7 @@ export class MessagesService {
     clientMessageId: string,
   ): Promise<MessageResponseDto> {
     const currentSender = await this.usersService.getById(sender.id);
-    if (currentSender.status !== 'ACTIVE') {
+    if (!canSendMessages(currentSender)) {
       throw new DomainException(CHAT_ERRORS.CHAT_SENDER_SUSPENDED);
     }
     const room = await this.roomsService.assertCanAccess(roomId, currentSender);

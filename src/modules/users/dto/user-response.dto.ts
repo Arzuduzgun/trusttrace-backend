@@ -7,6 +7,7 @@ export class UserResponseDto {
   displayName!: string;
   role!: UserRole;
   status!: UserStatus;
+  suspendedUntil!: Date | null;
 
   static from(user: User): UserResponseDto {
     return {
@@ -15,6 +16,7 @@ export class UserResponseDto {
       displayName: user.displayName,
       role: user.role,
       status: user.status,
+      suspendedUntil: user.suspendedUntil,
     };
   }
 }

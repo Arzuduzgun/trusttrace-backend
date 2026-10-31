@@ -3,6 +3,7 @@ import { AUTH_ERRORS } from '../../modules/auth/auth.errors';
 import { CHAT_ERRORS } from '../../modules/chat/chat.errors';
 import { MODERATION_ERRORS } from '../../modules/moderation/moderation.errors';
 import { ROOM_ERRORS } from '../../modules/rooms/rooms.errors';
+import { SANCTION_ERRORS } from '../../modules/sanctions/sanctions.errors';
 import { USER_ERRORS } from '../../modules/users/users.errors';
 import { COMMON_ERRORS } from './common.errors';
 import type { ErrorCatalog, ErrorCodeDefinition } from './error-code.types';
@@ -27,4 +28,5 @@ export const ERROR_REGISTRY = buildRegistry([
   ROOM_ERRORS,
   CHAT_ERRORS,
   MODERATION_ERRORS,
+  SANCTION_ERRORS,
 ]);

@@ -1,13 +1,22 @@
 //Users tablosunun bütün SQL’i burada.
 import { Inject, Injectable } from '@nestjs/common';
-import { eq, and, inArray } from 'drizzle-orm';
+import { eq, and, inArray, desc } from 'drizzle-orm';
 import { DomainException } from '../../common/errors/domain.exception';
 import { DRIZZLE } from '../../database/database.tokens';
 import type { Database } from '../../database/database.types';
 import { isUniqueViolation } from '../../database/postgres-errors';
 import { users } from '../../database/schema';
 import { USER_ERRORS } from './users.errors';
-import type { NewUser, User, UserCredentials, UserRole } from './users.types';
+import type {
+  NewUser,
+  User,
+  UserCredentials,
+  UserListFilter,
+  UserRole,
+  UserStatusChange,
+} from './users.types';
+import { ModerationEventsRepository } from '../moderation-events/moderation-events.repository';
+import { NewModerationEvent } from '../moderation-events/moderation-events.types';
 
 //Hangi kolonların okunacağı. passwordHash bu listede yok, yani hash normal sorgularla hiç okunmaz.
 const USER_COLUMNS = {
@@ -23,7 +32,10 @@ const USER_COLUMNS = {
 
 @Injectable()
 export class UsersRepository {
-  constructor(@Inject(DRIZZLE) private readonly db: Database) {}
+  constructor(
+    @Inject(DRIZZLE) private readonly db: Database,
+    private readonly moderationEventsRepository: ModerationEventsRepository,
+  ) {}
 
   async findById(id: string): Promise<User | null> {
     const [row] = await this.db.select(USER_COLUMNS).from(users).where(eq(users.id, id)).limit(1);
@@ -76,5 +88,34 @@ export class UsersRepository {
       .from(users)
       .where(inArray(users.id, ids));
     return new Map(rows.map((row) => [row.id, row.displayName]));
+  }
+
+  list(filter: UserListFilter): Promise<User[]> {
+    return this.db
+      .select(USER_COLUMNS)
+      .from(users)
+      .where(filter.status ? eq(users.status, filter.status) : undefined)
+      .orderBy(desc(users.createdAt))
+      .limit(filter.limit);
+  }
+
+  //Kullanıcının durumunu değiştirir ve defter kaydını aynı transaction’da yazar.
+  async updateStatusWithEvent(
+    userId: string,
+    change: UserStatusChange,
+    event: NewModerationEvent,
+  ): Promise<User> {
+    return this.db.transaction(async (tx) => {
+      const [row] = await tx
+        .update(users)
+        .set(change)
+        .where(eq(users.id, userId))
+        .returning(USER_COLUMNS);
+      if (!row) {
+        throw new DomainException(USER_ERRORS.USER_NOT_FOUND);
+      }
+      await this.moderationEventsRepository.append(event, tx);
+      return row;
+    });
   }
 }

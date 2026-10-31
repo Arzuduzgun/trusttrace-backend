@@ -77,4 +77,8 @@ export class TokenService {
     const expiresAt = new Date(Date.now() + this.config.get('JWT_REFRESH_TTL_DAYS') * DAY_IN_MS);
     return { token, record: { userId, familyId, tokenHash: hashToken(token), expiresAt } };
   }
+
+  async revokeAllSessions(userId: string): Promise<void> {
+    await this.refreshTokensRepository.revokeAllForUser(userId);
+  }
 }

@@ -24,6 +24,6 @@ import { WsTicketService } from './ws-ticket.service';
     { provide: APP_GUARD, useClass: JwtAuthGuard },
     { provide: APP_GUARD, useClass: RolesGuard },
   ],
-  exports: [WsTicketService],
+  exports: [WsTicketService, TokenService],
 })
 export class AuthModule {}

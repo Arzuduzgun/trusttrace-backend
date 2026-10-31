@@ -51,4 +51,29 @@ export class ModerationEventsRepository {
       .orderBy(desc(moderationEvents.seq))
       .limit(filter.limit);
   }
+
+  async findById(id: string): Promise<ModerationEvent | null> {
+    const [row] = await this.db
+      .select(EVENT_COLUMNS)
+      .from(moderationEvents)
+      .where(eq(moderationEvents.id, id))
+      .limit(1);
+    return row ?? null;
+  }
+
+  /*“Bu ceza daha önce kaldırılmış mı?” diye bakar.
+   Bu cezayı gösteren bir SANCTION_REVOKED kaydı var mı diye bakar*/
+  async hasRevocation(eventId: string): Promise<boolean> {
+    const [row] = await this.db
+      .select({ seq: moderationEvents.seq })
+      .from(moderationEvents)
+      .where(
+        and(
+          eq(moderationEvents.refersToEventId, eventId),
+          eq(moderationEvents.eventType, 'SANCTION_REVOKED'),
+        ),
+      )
+      .limit(1);
+    return row !== undefined;
+  }
 }

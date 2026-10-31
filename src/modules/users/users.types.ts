@@ -28,3 +28,14 @@ export interface NewUser {
   displayName: string;
   role?: UserRole;
 }
+
+export interface UserStatusChange {
+  status: UserStatus;
+  suspendedUntil: Date | null;
+  tokensValidAfter?: Date;
+}
+
+export interface UserListFilter {
+  status?: UserStatus;
+  limit: number;
+}

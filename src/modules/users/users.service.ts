@@ -3,7 +3,14 @@ import { Injectable } from '@nestjs/common';
 import { DomainException } from '../../common/errors/domain.exception';
 import { USER_ERRORS } from './users.errors';
 import { UsersRepository } from './users.repository';
-import type { NewUser, User, UserCredentials } from './users.types';
+import type {
+  NewUser,
+  User,
+  UserCredentials,
+  UserListFilter,
+  UserStatusChange,
+} from './users.types';
+import { NewModerationEvent } from '../moderation-events/moderation-events.types';
 
 function normalizeEmail(email: string): string {
   return email.trim().toLowerCase();
@@ -39,5 +46,17 @@ export class UsersService {
 
   findDisplayNames(ids: string[]): Promise<Map<string, string>> {
     return this.usersRepository.findDisplayNames(ids);
+  }
+
+  list(filter: UserListFilter): Promise<User[]> {
+    return this.usersRepository.list(filter);
+  }
+
+  applyStatusChange(
+    userId: string,
+    change: UserStatusChange,
+    event: NewModerationEvent,
+  ): Promise<User> {
+    return this.usersRepository.updateStatusWithEvent(userId, change, event);
   }
 }
