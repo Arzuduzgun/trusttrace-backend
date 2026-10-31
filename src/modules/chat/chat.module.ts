@@ -7,9 +7,10 @@ import { MessagesService } from './messages.service';
 import { ChatGateway } from './chat.gateway';
 import { AuthModule } from '../auth/auth.module';
 import { ModerationModule } from '../moderation/moderation.module';
+import { ModerationEventsModule } from '../moderation-events/moderation-events.module';
 
 @Module({
-  imports: [AuthModule, RoomsModule, UsersModule, ModerationModule],
+  imports: [AuthModule, RoomsModule, UsersModule, ModerationModule, ModerationEventsModule],
   controllers: [MessagesController],
   providers: [MessagesService, MessagesRepository, ChatGateway],
 })

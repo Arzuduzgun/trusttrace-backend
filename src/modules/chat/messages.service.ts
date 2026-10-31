@@ -9,9 +9,10 @@ import type { User } from '../users/users.types';
 import { CHAT_ERRORS } from './chat.errors';
 import { MessageResponseDto } from './dto/message-response.dto';
 import { MessagesRepository } from './messages.repository';
-import { MessageStatus } from './messages.types';
-import { ScanVerdict } from '../moderation/moderation.types';
+import { Message, MessageStatus } from './messages.types';
+import { ScanResult, ScanVerdict } from '../moderation/moderation.types';
 import { ContentScannerService } from '../moderation/content-scanner.service';
+import { NewModerationEvent } from '../moderation-events/moderation-events.types';
 
 const STATUS_BY_VERDICT: Record<ScanVerdict, MessageStatus> = {
   CLEAN: 'DELIVERED',
@@ -71,13 +72,30 @@ export class MessagesService {
       throw new DomainException(CHAT_ERRORS.CHAT_ROOM_CLOSED);
     }
     const scan = await this.contentScanner.scan(body);
-    const message = await this.messagesRepository.insertOnce({
-      roomId,
-      senderId: currentSender.id,
-      body: body.trim(),
-      clientMessageId,
-      status: STATUS_BY_VERDICT[scan.verdict],
-    });
+    const message = await this.messagesRepository.insertOnce(
+      {
+        roomId,
+        senderId: currentSender.id,
+        body: body.trim(),
+        clientMessageId,
+        status: STATUS_BY_VERDICT[scan.verdict],
+      },
+      scan.verdict === 'CLEAN' ? undefined : (saved) => this.toViolationEvent(saved, scan),
+    );
     return MessageResponseDto.from(message, currentSender.displayName);
+  }
+
+  private toViolationEvent(saved: Message, scan: ScanResult): NewModerationEvent {
+    return {
+      eventType: 'VIOLATION_DETECTED',
+      actorType: 'SYSTEM',
+      actorId: null,
+      subjectUserId: saved.senderId,
+      roomId: saved.roomId,
+      messageId: saved.id,
+      refersToEventId: null,
+      traceId: null,
+      payload: { verdict: scan.verdict, messageBody: saved.body, matches: scan.matches },
+    };
   }
 }

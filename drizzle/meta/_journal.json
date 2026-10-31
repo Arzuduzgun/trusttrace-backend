@@ -36,6 +36,20 @@
       "when": 1793374315180,
       "tag": "0004_unknown_fixer",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1793433886490,
+      "tag": "0005_absent_joystick",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1793433918630,
+      "tag": "0006_moderation_events_immutable",
+      "breakpoints": true
     }
   ]
 }
