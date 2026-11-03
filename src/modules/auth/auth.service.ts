@@ -1,4 +1,3 @@
-// Auth akışlarını yönetir: SQL yazmaz, token üretmez; doğru servisleri doğru sırada çağırır.
 import { Injectable } from '@nestjs/common';
 import { DomainException } from '../../common/errors/domain.exception';
 import { UserResponseDto } from '../users/dto/user-response.dto';
@@ -19,7 +18,6 @@ export class AuthService {
     private readonly tokenService: TokenService,
   ) {}
 
-  /** Yeni müşteri kaydı. Rol her zaman CUSTOMER: temsilci ve admin seed ya da admin ile açılır. */
   async register(dto: RegisterDto): Promise<AuthResult> {
     const passwordHash = await this.passwordService.hash(dto.password);
     const user = await this.usersService.create({
@@ -31,7 +29,6 @@ export class AuthService {
     return this.startSession(user);
   }
 
-  /** E-posta da şifre de yanlış olsa aynı hata, aynı süre: hangi e-postanın kayıtlı olduğu sızmaz. */
   async login(dto: LoginDto): Promise<AuthResult> {
     const credentials = await this.usersService.findCredentialsByEmail(dto.email);
     const isValid = await this.passwordService.verify(
@@ -61,7 +58,6 @@ export class AuthService {
     return { ...pair, user: UserResponseDto.from(user) };
   }
 
-  // Banlı kullanıcı giremez. Askıdaki girebilir ama mesaj gönderemez (PDF kuralı).
   private assertNotBanned(user: User): void {
     if (user.status === 'BANNED') {
       throw new DomainException(AUTH_ERRORS.AUTH_ACCOUNT_BANNED);

@@ -1,4 +1,3 @@
-// Token üretir, yeniler, iptal eder. Refresh token rastgele 32 bayt; DB'de SHA-256 hash'i tutulur.
 import { createHash, randomBytes, randomUUID } from 'node:crypto';
 import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
@@ -22,14 +21,12 @@ export class TokenService {
     private readonly refreshTokensRepository: RefreshTokensRepository,
   ) {}
 
-  // Yeni giriş: yeni bir token ailesi başlatır.
   async issueForNewSession(userId: string): Promise<TokenPair> {
     const refresh = this.createRefreshToken(userId, randomUUID());
     await this.refreshTokensRepository.create(refresh.record);
     return this.buildPair(userId, refresh.token);
   }
 
-  // Rotation: eski token ölür, aynı aileden yenisi doğar. Ölmüş token tekrar gelirse bütün aile iptal. */
   async rotate(refreshToken: string): Promise<{ userId: string; pair: TokenPair }> {
     const record = await this.refreshTokensRepository.findByHash(hashToken(refreshToken));
     if (!record) {

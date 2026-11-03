@@ -1,4 +1,3 @@
-// Projedeki tek hata sınıfı. Kural bozulunca: throw new DomainException(USER_ERRORS.USER_NOT_FOUND)
 import { HttpException } from '@nestjs/common';
 import type { ErrorCodeDefinition, ErrorDetail } from './error-code.types';
 

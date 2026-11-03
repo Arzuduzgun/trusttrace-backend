@@ -1,4 +1,3 @@
-// JWT'nin içi herkes tarafından okunabilir: içine sadece id koyuyoruz, rol ya da e-posta değil.
 import type { UserResponseDto } from '../users/dto/user-response.dto';
 
 export interface AccessTokenPayload {

@@ -1,4 +1,3 @@
-//GET /api/v1/rooms/:roomId/messages adresini açar.
 import { Controller, Get, Param, ParseUUIDPipe, Query } from '@nestjs/common';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import { CursorQueryDto } from '../../common/dto/cursor-query.dto';

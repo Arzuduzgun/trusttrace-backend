@@ -1,4 +1,3 @@
-//Mesajın dışarıya gösterilen hali. Gönderenin id’sine ek olarak adını (senderName) da içerir.
 import type { Message, MessageStatus } from '../messages.types';
 
 export class MessageResponseDto {

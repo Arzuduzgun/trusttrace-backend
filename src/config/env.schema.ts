@@ -1,4 +1,3 @@
-//// Ortam değişkenlerinin kuralları. Eksik ya da hatalı değişken varsa uygulama hiç açılmaz (fail fast).
 import { z } from 'zod';
 
 export const envSchema = z.object({

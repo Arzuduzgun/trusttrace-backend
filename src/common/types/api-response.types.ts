@@ -1,4 +1,3 @@
-// Frontend'in göreceği iki cevap şekli: { success: true, data } ve { success: false, error }.
 import type { ErrorDetail } from '../errors/error-code.types';
 
 export type ListMeta = Readonly<Record<string, string | number | boolean | null>>;

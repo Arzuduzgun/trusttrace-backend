@@ -2,10 +2,6 @@ import { index, pgEnum, pgTable, text, timestamp, unique, uuid } from 'drizzle-o
 import { rooms } from './rooms.schema';
 import { users } from './users.schema';
 
-/*status: Mesajın durumu.
-DELIVERED: temiz, iletildi
-FLAGGED: işaretlendi ama iletildi
-BLOCKED: engellendi, iletilmedi*/
 export const messageStatusEnum = pgEnum('message_status', ['DELIVERED', 'FLAGGED', 'BLOCKED']);
 
 export const messages = pgTable(

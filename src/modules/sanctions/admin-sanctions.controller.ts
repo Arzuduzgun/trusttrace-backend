@@ -12,7 +12,6 @@ import { SanctionsService } from './sanctions.service';
 export class AdminSanctionsController {
   constructor(private readonly sanctionsService: SanctionsService) {}
 
-  //POST /admin/users/:id/suspend: Askıya al.
   @Post('suspend')
   @HttpCode(HttpStatus.OK)
   async suspend(
@@ -23,7 +22,6 @@ export class AdminSanctionsController {
     return UserResponseDto.from(await this.sanctionsService.suspend(userId, admin, dto));
   }
 
-  //POST /admin/users/:id/ban: Banla.
   @Post('ban')
   @HttpCode(HttpStatus.OK)
   async ban(
@@ -34,7 +32,6 @@ export class AdminSanctionsController {
     return UserResponseDto.from(await this.sanctionsService.ban(userId, admin, dto));
   }
 
-  //POST /admin/users/:id/sanctions/:eventId/revoke: Cezayı kaldır.
   @Post('sanctions/:eventId/revoke')
   @HttpCode(HttpStatus.OK)
   async revoke(

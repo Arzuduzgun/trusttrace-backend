@@ -1,4 +1,3 @@
-//GET /admin/moderation-events adresini açar. Sadece admin erişebilir.
 import { Controller, Get, Query } from '@nestjs/common';
 import { Roles } from '../../common/decorators/roles.decorator';
 import { ModerationEventQueryDto } from './dto/moderation-event-query.dto';

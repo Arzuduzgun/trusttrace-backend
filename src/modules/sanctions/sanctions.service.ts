@@ -1,4 +1,3 @@
-//Ceza işlemlerinin bütün kuralları burada. SQL yazmaz; users, token, defter ve chat servislerini doğru sırayla çağırır.
 import { Injectable } from '@nestjs/common';
 import { DomainException } from '../../common/errors/domain.exception';
 import { TokenService } from '../auth/token.service';

@@ -1,4 +1,3 @@
-//Odanın uygulama içindeki şeklini tanımlar.
 import type { memberRoleEnum, roomStatusEnum, roomTypeEnum } from '../../database/schema';
 
 export type RoomType = (typeof roomTypeEnum.enumValues)[number];

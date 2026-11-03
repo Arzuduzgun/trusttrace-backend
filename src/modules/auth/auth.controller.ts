@@ -1,4 +1,3 @@
-// Auth endpoint'leri. İş kuralı yok: isteği al, servise ver, sonucu dön.
 import { Body, Controller, HttpCode, HttpStatus, Post } from '@nestjs/common';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import { Public } from '../../common/decorators/public.decorator';

@@ -1,4 +1,3 @@
-//Uygulamanın geri kalanının gördüğü “kullanıcı” şekli.
 import type { userRoleEnum, userStatusEnum } from '../../database/schema';
 
 export type UserRole = (typeof userRoleEnum.enumValues)[number];
@@ -16,7 +15,6 @@ export interface User {
   createdAt: Date;
 }
 
-//kullanıcı ve hash’i birlikte tutar. Sadece giriş sırasında kullanılır.
 export interface UserCredentials {
   user: User;
   passwordHash: string;

@@ -1,4 +1,3 @@
-//Odanın dışarıya gösterilen hali. from fonksiyonu iç nesneyi bu şekle çevirir.
 import type { Room, RoomStatus, RoomType } from '../rooms.types';
 
 export class RoomResponseDto {

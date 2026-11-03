@@ -28,14 +28,12 @@ export class ModerationRulesRepository {
       .from(moderationRules)
       .orderBy(desc(moderationRules.createdAt));
   }
-  //Sadece aktif kurallar. Tarama için.
   listActive(): Promise<ModerationRule[]> {
     return this.db
       .select(RULE_COLUMNS)
       .from(moderationRules)
       .where(eq(moderationRules.isActive, true));
   }
-  //Tek bir kural.
   async findById(id: string): Promise<ModerationRule | null> {
     const [row] = await this.db
       .select(RULE_COLUMNS)
@@ -44,7 +42,6 @@ export class ModerationRulesRepository {
       .limit(1);
     return row ?? null;
   }
-  //Yeni kural ekler. Aynı kural zaten varsa MODERATION_RULE_ALREADY_EXISTS fırlatır.
   async create(newRule: NewModerationRule): Promise<ModerationRule> {
     try {
       const [row] = await this.db.insert(moderationRules).values(newRule).returning(RULE_COLUMNS);
@@ -59,7 +56,6 @@ export class ModerationRulesRepository {
       throw error;
     }
   }
-  //Kuralın eylemini ya da aktifliğini değiştirir. Kural yoksa null döner.
   async update(id: string, changes: RuleChanges): Promise<ModerationRule | null> {
     const [row] = await this.db
       .update(moderationRules)

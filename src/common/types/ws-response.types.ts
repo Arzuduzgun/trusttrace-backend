@@ -1,4 +1,3 @@
-//WebSocket cevaplarının şeklini tanımlar.
 import type { ApiFailure } from './api-response.types';
 
 export interface WsSuccess<T> {

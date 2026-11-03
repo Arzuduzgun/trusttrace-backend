@@ -12,7 +12,6 @@ export class WsTicketService {
     private readonly config: AppConfigService,
   ) {}
 
-  //İçinde sadece kullanıcı id’si olan, 60 saniye geçerli bir bilet imzalar.
   async issue(userId: string): Promise<WsTicket> {
     const ticket = await this.jwtService.signAsync(
       { sub: userId },
@@ -20,7 +19,6 @@ export class WsTicketService {
     );
     return { ticket, expiresIn: WS_TICKET_TTL_SECONDS };
   }
-  //Bileti kontrol eder. Geçerliyse kullanıcı id’sini döner; süresi dolmuş, sahte ya da bozuksa hata fırlatır.
   async verify(ticket: string): Promise<string> {
     const payload = await this.jwtService.verifyAsync<{ sub: string }>(ticket, {
       secret: this.config.get('WS_TICKET_SECRET'),

@@ -1,4 +1,3 @@
-//Admin paneli için kayıtları listeler
 import { Injectable } from '@nestjs/common';
 import { ModerationEventsRepository } from './moderation-events.repository';
 import type { ModerationEvent, ModerationEventFilter } from './moderation-events.types';

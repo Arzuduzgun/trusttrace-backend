@@ -35,7 +35,6 @@ export class MessagesService {
     viewer: User,
     query: CursorQueryDto,
   ): Promise<Paginated<MessageResponseDto>> {
-    //Bu kişi odanın üyesi mi? Değilse 403. Başkasının konuşmasını okumak burada engelleniyor.
     await this.roomsService.assertCanAccess(roomId, viewer);
     const rows = await this.messagesRepository.listPage({
       roomId,

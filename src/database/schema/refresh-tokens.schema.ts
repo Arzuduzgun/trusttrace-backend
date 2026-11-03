@@ -10,7 +10,6 @@ export const refreshTokens = pgTable(
       .notNull()
       .references(() => users.id, { onDelete: 'cascade' }),
     tokenHash: text('token_hash').notNull().unique(),
-    // Aynı girişten doğan token'lar. Kullanılmış token tekrar gelirse bütün aile iptal edilir.
     familyId: uuid('family_id').notNull(),
     expiresAt: timestamp('expires_at', { withTimezone: true }).notNull(),
     revokedAt: timestamp('revoked_at', { withTimezone: true }),

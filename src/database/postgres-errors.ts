@@ -1,4 +1,3 @@
-//Postgres’in “bu değer zaten var” hatasını tanır. Bu hatanın kodu 23505. Kullanıcı 500 değil, anlamlı bir 409 görmeli.
 import { DatabaseError } from 'pg';
 
 const PG_UNIQUE_VIOLATION = '23505';

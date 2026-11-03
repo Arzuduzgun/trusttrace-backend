@@ -1,5 +1,3 @@
-/*Hangi kullanıcının hangi odada olduğunu tutar. 
-Bir kullanıcı birçok odada olabilir, bir odada da birçok kullanıcı olabilir.*/
 import { index, pgEnum, pgTable, primaryKey, timestamp, uuid } from 'drizzle-orm/pg-core';
 import { rooms } from './rooms.schema';
 import { users } from './users.schema';

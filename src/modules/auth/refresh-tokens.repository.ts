@@ -1,4 +1,3 @@
-// refresh_tokens tablosunun SQL'i. rotate() tek transaction: aynı token iki kez kullanılamaz.
 import { Inject, Injectable } from '@nestjs/common';
 import { and, eq, isNull } from 'drizzle-orm';
 import { DRIZZLE } from '../../database/database.tokens';
@@ -62,7 +61,6 @@ export class RefreshTokensRepository {
       .where(and(eq(refreshTokens.familyId, familyId), isNull(refreshTokens.revokedAt)));
   }
 
-  //Kullanıcının, bütün cihazlarındaki bütün refresh token’larını iptal eder.
   async revokeAllForUser(userId: string): Promise<void> {
     await this.db
       .update(refreshTokens)

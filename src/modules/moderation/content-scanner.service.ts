@@ -10,11 +10,7 @@ const MIN_PREFIX_MATCH_LENGTH = 4;
 export class ContentScannerService {
   constructor(private readonly rulesService: ModerationRulesService) {}
 
-  /*Metni temizler ve kelimelere böler.
-    Her aktif kuralı kontrol eder:
-    WORD kuralı: Kelimelerden biriyle eşleşiyor mu?
-    PHRASE kuralı: Cümle metnin içinde, bir kelime başından başlayarak geçiyor mu?
-    Takılınan kuralları listeler ve karar verir.*/
+  
   async scan(text: string): Promise<ScanResult> {
     const words = toWords(normalizeText(text));
     const sentence = ` ${words.join(' ')}`;

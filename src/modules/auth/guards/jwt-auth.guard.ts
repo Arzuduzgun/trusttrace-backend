@@ -1,4 +1,3 @@
-//Her istekte çalışarak girişe izin verip vermeyeceğinin sorusunu cevaplar.
 import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { JwtService } from '@nestjs/jwt';
@@ -20,11 +19,6 @@ export class JwtAuthGuard implements CanActivate {
     private readonly config: AppConfigService,
     private readonly usersService: UsersService,
   ) {}
-  /*Endpoint’te @Public() etiketi varsa sormadan geçirir.
-    Token’ı alır (extractToken).
-    Token’ı doğrular (verify).
-    Kullanıcıyı bulur ve kontrol eder (loadActiveUser).
-    Kullanıcıyı isteğin üstüne koyar: request.user = user.*/
   async canActivate(context: ExecutionContext): Promise<boolean> {
     if (context.getType() !== 'http') {
       return true;
@@ -41,7 +35,6 @@ export class JwtAuthGuard implements CanActivate {
     request.user = await this.loadActiveUser(payload);
     return true;
   }
-  //Authorization: Bearer abc123 header’ından abc123 kısmını çıkarır. Header yoksa ya da Bearer ile başlamıyorsa AUTH_TOKEN_MISSING fırlatır.
   private extractToken(request: Request): string {
     const [type, token] = request.headers.authorization?.split(' ') ?? [];
     if (type !== 'Bearer' || !token) {
@@ -65,11 +58,6 @@ export class JwtAuthGuard implements CanActivate {
     }
   }
 
-  /*Token’daki id ile kullanıcıyı veritabanından bulur ve üç şeye bakar:
-    Kullanıcı yoksa → AUTH_TOKEN_INVALID.
-    Banlıysa → AUTH_ACCOUNT_BANNED.
-    Token, tokensValidAfter tarihinden önce verilmişse → AUTH_TOKEN_REVOKED. 
-    Admin birini banladığında bu tarihi “şimdi” yapacak; böylece o kişinin elindeki bütün eski token’lar tek seferde geçersiz olacak.*/
   private async loadActiveUser(payload: VerifiedAccessToken): Promise<User> {
     const user = await this.usersService.findById(payload.sub);
     if (!user) {

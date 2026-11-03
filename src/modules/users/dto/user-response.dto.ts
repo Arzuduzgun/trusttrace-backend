@@ -1,4 +1,3 @@
-// Kullanıcının dışarıya gösterilen hali. İç alanlar (hash, tokensValidAfter) burada yok.
 import type { User, UserRole, UserStatus } from '../users.types';
 
 export class UserResponseDto {

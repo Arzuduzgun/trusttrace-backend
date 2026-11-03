@@ -1,9 +1,7 @@
-//Yasaklı kelime ve cümlelerin tablosunu tanımlar.
 import { boolean, pgEnum, pgTable, timestamp, uuid, varchar } from 'drizzle-orm/pg-core';
 import { users } from './users.schema';
 
-/*WORD: tek kelime
-PHRASE: birden fazla kelimeden oluşan cümle*/
+
 export const ruleMatchTypeEnum = pgEnum('rule_match_type', ['WORD', 'PHRASE']);
 export const ruleActionEnum = pgEnum('rule_action', ['FLAG', 'BLOCK']);
 

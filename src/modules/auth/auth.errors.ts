@@ -1,4 +1,3 @@
-// Auth hata kodları. E-posta mı yanlış şifre mi, dışarıya söylenmez: ikisi de AUTH_INVALID_CREDENTIALS.
 import { HttpStatus } from '@nestjs/common';
 import type { ErrorCatalog } from '../../common/errors/error-code.types';
 

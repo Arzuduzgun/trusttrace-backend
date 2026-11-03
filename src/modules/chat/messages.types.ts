@@ -1,4 +1,3 @@
-//Mesajın uygulama içindeki şeklini tanımlar.
 import type { messageStatusEnum } from '../../database/schema';
 import type { CursorPosition } from '../../common/pagination/cursor';
 
@@ -22,7 +21,6 @@ export interface NewMessage {
   status: MessageStatus;
 }
 
-//Repository’ye “hangi sayfayı istiyorum” bilgisini taşır.
 export interface MessagePageQuery {
   roomId: string;
   viewerId: string;

@@ -19,10 +19,6 @@ export class ModerationRulesService {
     return this.rulesRepository.listAll();
   }
 
-  /*Kuralı mesajlarla aynı temizlikten geçirir.
-    Geriye bir şey kalmadıysa MODERATION_PATTERN_EMPTY fırlatır.
-    İçinde boşluk varsa PHRASE, yoksa WORD olarak işaretler.
-    Kaydeder ve önbelleği boşaltır.*/
   async create(dto: CreateRuleDto, admin: User): Promise<ModerationRule> {
     const pattern = toWords(normalizeText(dto.pattern)).join(' ');
     if (!pattern) {
@@ -38,7 +34,6 @@ export class ModerationRulesService {
     return rule;
   }
 
-  //Sadece gönderilen alanları değiştirir. Hiçbir alan gönderilmediyse kuralı olduğu gibi döner. Ardından önbelleği boşaltır.
   async update(id: string, dto: UpdateRuleDto): Promise<ModerationRule> {
     const changes: RuleChanges = {
       ...(dto.action !== undefined ? { action: dto.action } : {}),
@@ -55,7 +50,6 @@ export class ModerationRulesService {
     return rule;
   }
 
-  //Tarayıcının kullandığı fonksiyon. Önbellek doluysa oradan döner, boşsa veritabanından doldurur.
   async getActiveRules(): Promise<ModerationRule[]> {
     this.activeRulesCache ??= await this.rulesRepository.listActive();
     return this.activeRulesCache;

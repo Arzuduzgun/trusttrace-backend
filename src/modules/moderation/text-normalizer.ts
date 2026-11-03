@@ -1,6 +1,3 @@
-/*Mesajı karşılaştırmaya hazır hale getirir. Kullanıcıların kuralları 
-atlatmak için kullandığı hileleri temizler. Mesajın kaydedilen hali değişmez; 
-temizlenmiş metin sadece karşılaştırma için kullanılır.*/
 const LEET_MAP: Readonly<Record<string, string>> = {
   '0': 'o',
   '1': 'i',

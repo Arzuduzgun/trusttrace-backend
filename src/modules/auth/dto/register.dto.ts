@@ -1,4 +1,3 @@
-// Kayıt verisi. "role" alanı bilerek yok: kullanıcı kendini admin yapamaz.
 import { IsEmail, IsString, Matches, MaxLength, MinLength } from 'class-validator';
 
 export class RegisterDto {
@@ -6,7 +5,6 @@ export class RegisterDto {
   @MaxLength(254)
   email!: string;
 
-  // 72: bcrypt bu uzunluktan sonrasını okumaz.
   @IsString()
   @MinLength(8)
   @MaxLength(72)

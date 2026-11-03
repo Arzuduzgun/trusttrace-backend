@@ -25,7 +25,6 @@ import { SendMessageDto } from './dto/send-message.dto';
 import { MessagesService } from './messages.service';
 import { ChatNotifierService } from './chat-notifier.service';
 
-//Gelen veriyi DTO kurallarına göre kontrol eder.
 @UsePipes(
   new ValidationPipe({
     whitelist: true,
@@ -68,7 +67,6 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
     });
   }
 
-  //Bağlantı açıldığında ve kapandığında kimin bağlandığını loglar.
   handleConnection(client: Socket): void {
     this.logger.log(`Socket connected: user=${this.userOf(client).id} socket=${client.id}`);
   }

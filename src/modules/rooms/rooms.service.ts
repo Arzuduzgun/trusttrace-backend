@@ -1,4 +1,3 @@
-//Odalarla ilgili bütün kurallar burada. SQL yazmaz; repository’yi ve users servisini çağırır.
 import { Injectable } from '@nestjs/common';
 import { DomainException } from '../../common/errors/domain.exception';
 import { UsersService } from '../users/users.service';
@@ -13,17 +12,14 @@ export class RoomsService {
     private readonly roomsRepository: RoomsRepository,
     private readonly usersService: UsersService,
   ) {}
-  //Admin ise bütün odaları, değilse sadece üyesi olduğu odaları döner.
   listMyRooms(user: User): Promise<Room[]> {
     return user.role === 'ADMIN'
       ? this.roomsRepository.listAll()
       : this.roomsRepository.listForUser(user.id);
   }
-  //Katılınabilecek, kapalı olmayan ürün odaları.
   listProductRooms(): Promise<Room[]> {
     return this.roomsRepository.listOpenByType('PRODUCT');
   }
-  //En az meşgul temsilciyi bulur ve müşteriyle birlikte 1-1 bir oda açar. Oda adı otomatik olur
   async startDirectRoom(customer: User): Promise<Room> {
     const agent = await this.pickLeastBusyAgent();
     return this.roomsRepository.createWithMembers(
@@ -38,7 +34,6 @@ export class RoomsService {
       ],
     );
   }
-  //Müşteriyi bir ürün odasına ekler. Oda 1-1 ise ya da kapalıysa ROOM_NOT_JOINABLE fırlatır.
   async joinProductRoom(roomId: string, customer: User): Promise<Room> {
     const room = await this.getRoom(roomId);
     if (room.type !== 'PRODUCT' || room.status === 'CLOSED') {
@@ -47,14 +42,12 @@ export class RoomsService {
     await this.roomsRepository.addMember(room.id, { userId: customer.id, memberRole: 'CUSTOMER' });
     return room;
   }
-  //Admin yeni bir ürün odası açar.
   createProductRoom(name: string, admin: User): Promise<Room> {
     return this.roomsRepository.createWithMembers(
       { type: 'PRODUCT', name, createdBy: admin.id },
       [],
     );
   }
-  //Admin bir kişiyi odaya ekler. Kişinin odadaki rolü, kendi hesap rolünden çıkarılır
   async addMember(roomId: string, userId: string): Promise<void> {
     const room = await this.getRoom(roomId);
     const user = await this.usersService.getById(userId);
@@ -66,7 +59,6 @@ export class RoomsService {
       memberRole: user.role === 'AGENT' ? 'AGENT' : 'CUSTOMER',
     });
   }
-  //“Bu kişi bu odaya erişebilir mi?” sorusunu cevaplar.
   async assertCanAccess(roomId: string, user: User): Promise<Room> {
     const room = await this.getRoom(roomId);
     if (user.role === 'ADMIN') {
@@ -86,7 +78,7 @@ export class RoomsService {
     }
     return room;
   }
-  //Aktif temsilcileri alır, her birinin açık oda sayısına bakar ve en az olanı seçer. Hiç temsilci yoksa ROOM_NO_AGENT_AVAILABLE fırlatır.
+  //Aktif temsilcilerin açık oda sayısına bakar ve en az olanı seçer. Hiç temsilci yoksa ROOM_NO_AGENT_AVAILABLE fırlatır.
   private async pickLeastBusyAgent(): Promise<User> {
     const [firstAgent, ...otherAgents] = await this.usersService.listActiveAgents();
     if (!firstAgent) {

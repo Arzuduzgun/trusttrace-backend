@@ -1,7 +1,3 @@
-//rooms ve room_members tablolarının bütün SQL’i burada.
-/*Birleştirme sebebi şu: 1-1 oda açarken “odayı oluştur” ve 
-“iki kişiyi üye yap” işlemleri aynı transaction’da olmalı. Biri olup diğeri 
-olmazsa üyesiz bir oda kalır*/
 import { Inject, Injectable } from '@nestjs/common';
 import { and, count, desc, eq, inArray, ne } from 'drizzle-orm';
 import { DomainException } from '../../common/errors/domain.exception';
@@ -24,7 +20,6 @@ const ROOM_COLUMNS = {
 export class RoomsRepository {
   constructor(@Inject(DRIZZLE) private readonly db: Database) {}
 
-  //Tek bir oda getirir. Yoksa null.
   async findById(id: string): Promise<Room | null> {
     const [row] = await this.db.select(ROOM_COLUMNS).from(rooms).where(eq(rooms.id, id)).limit(1);
     return row ?? null;
@@ -44,7 +39,6 @@ export class RoomsRepository {
       return room;
     });
   }
-  //Odaya bir üye ekler. Kişi zaten üyeyse ROOM_MEMBER_ALREADY_EXISTS fırlatır.
   async addMember(roomId: string, member: NewRoomMember): Promise<void> {
     try {
       await this.db.insert(roomMembers).values({ ...member, roomId });
@@ -55,7 +49,6 @@ export class RoomsRepository {
       throw error;
     }
   }
-  //Kişi bu odanın üyesi mi? Üyeyse rolünü, değilse null döner.
   async findMemberRole(roomId: string, userId: string): Promise<MemberRole | null> {
     const [row] = await this.db
       .select({ memberRole: roomMembers.memberRole })
@@ -64,7 +57,6 @@ export class RoomsRepository {
       .limit(1);
     return row?.memberRole ?? null;
   }
-  //Kişinin üyesi olduğu odalar, en yeni en üstte.
   listForUser(userId: string): Promise<Room[]> {
     return this.db
       .select(ROOM_COLUMNS)
@@ -73,11 +65,9 @@ export class RoomsRepository {
       .where(eq(roomMembers.userId, userId))
       .orderBy(desc(rooms.createdAt));
   }
-  //Bütün odalar. Admin için.
   listAll(): Promise<Room[]> {
     return this.db.select(ROOM_COLUMNS).from(rooms).orderBy(desc(rooms.createdAt));
   }
-  //Kapalı olmayan, belirli tipteki odalar.
   listOpenByType(type: RoomType): Promise<Room[]> {
     return this.db
       .select(ROOM_COLUMNS)

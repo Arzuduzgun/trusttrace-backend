@@ -1,4 +1,3 @@
-//Diğer modüllerin kullanıcıya ulaştığı tek kapı.
 import { Injectable } from '@nestjs/common';
 import { DomainException } from '../../common/errors/domain.exception';
 import { USER_ERRORS } from './users.errors';
