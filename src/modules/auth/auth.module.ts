@@ -10,10 +10,11 @@ import { APP_GUARD } from '@nestjs/core';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { RolesGuard } from './guards/roles.guard';
 import { WsTicketService } from './ws-ticket.service';
+import { AdminAgentsController } from './admin-agents.controller';
 
 @Module({
   imports: [UsersModule, JwtModule.register({})],
-  controllers: [AuthController],
+  controllers: [AuthController, AdminAgentsController],
   providers: [
     AuthService,
     PasswordService,

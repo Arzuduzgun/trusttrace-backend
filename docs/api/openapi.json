@@ -270,6 +270,37 @@
         "tags": ["Auth"]
       }
     },
+    "/api/v1/admin/agents": {
+      "post": {
+        "operationId": "AdminAgentsController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": { "schema": { "$ref": "#/components/schemas/CreateAgentDto" } }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["success", "data"],
+                  "properties": {
+                    "success": { "type": "boolean", "enum": [true] },
+                    "data": { "$ref": "#/components/schemas/UserResponseDto" }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [{ "bearer": [] }],
+        "tags": ["Admin – Agents"]
+      }
+    },
     "/api/v1/rooms": {
       "get": {
         "operationId": "RoomsController_listMine",
@@ -766,6 +797,20 @@
         "type": "object",
         "properties": { "ticket": { "type": "string" }, "expiresIn": { "type": "number" } },
         "required": ["ticket", "expiresIn"]
+      },
+      "CreateAgentDto": {
+        "type": "object",
+        "properties": {
+          "email": { "type": "string", "maxLength": 254, "format": "email" },
+          "password": {
+            "type": "string",
+            "minLength": 8,
+            "maxLength": 72,
+            "pattern": "^(?=.*[A-Za-z])(?=.*\\d).+$"
+          },
+          "displayName": { "type": "string", "minLength": 2, "maxLength": 80 }
+        },
+        "required": ["email", "password", "displayName"]
       },
       "RoomType": { "type": "string", "enum": ["DIRECT", "PRODUCT"] },
       "RoomStatus": { "type": "string", "enum": ["OPEN", "ESCALATED", "CLOSED"] },
