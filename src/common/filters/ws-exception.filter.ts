@@ -1,4 +1,4 @@
-//WebSocket’te fırlatılan hataları yakalayıp { ok: false, error } şekline çevirir. 
+//WebSocket’te fırlatılan hataları yakalayıp { ok: false, error } şekline çevirir.
 import { ArgumentsHost, Catch, ExceptionFilter, Logger } from '@nestjs/common';
 import type { Socket } from 'socket.io';
 import { COMMON_ERRORS } from '../errors/common.errors';

@@ -1,9 +1,13 @@
+import { ApiProperty } from '@nestjs/swagger';
+import { roomStatusEnum, roomTypeEnum } from '../../../database/schema';
 import type { Room, RoomStatus, RoomType } from '../rooms.types';
 
 export class RoomResponseDto {
   id!: string;
+  @ApiProperty({ enum: roomTypeEnum.enumValues, enumName: 'RoomType' })
   type!: RoomType;
   name!: string;
+  @ApiProperty({ enum: roomStatusEnum.enumValues, enumName: 'RoomStatus' })
   status!: RoomStatus;
   createdAt!: Date;
 

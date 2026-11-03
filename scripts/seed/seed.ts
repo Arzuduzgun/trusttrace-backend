@@ -75,7 +75,10 @@ async function findOrCreateRoom(type: RoomType, name: string, createdBy: string)
   if (existing) {
     return existing.id;
   }
-  const [created] = await db.insert(rooms).values({ type, name, createdBy }).returning({ id: rooms.id });
+  const [created] = await db
+    .insert(rooms)
+    .values({ type, name, createdBy })
+    .returning({ id: rooms.id });
   if (!created) {
     throw new Error(`Room could not be created: ${name}`);
   }
@@ -100,7 +103,10 @@ async function seedRooms(ids: Map<string, string>, adminId: string): Promise<voi
     const roomId = await findOrCreateRoom('PRODUCT', room.name, adminId);
     await addMembers(roomId, [
       { userId: idOf(ids, room.agentEmail), memberRole: 'AGENT' },
-      ...room.customerEmails.map((email) => ({ userId: idOf(ids, email), memberRole: 'CUSTOMER' as const })),
+      ...room.customerEmails.map((email) => ({
+        userId: idOf(ids, email),
+        memberRole: 'CUSTOMER' as const,
+      })),
     ]);
   }
   for (const room of SEED_DIRECT_ROOMS) {

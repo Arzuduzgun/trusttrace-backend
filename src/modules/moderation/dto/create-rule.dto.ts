@@ -1,6 +1,7 @@
 import { IsIn, IsString, MaxLength, MinLength } from 'class-validator';
 import { ruleActionEnum } from '../../../database/schema';
 import type { RuleAction } from '../moderation.types';
+import { ApiProperty } from '@nestjs/swagger';
 
 export class CreateRuleDto {
   @IsString()
@@ -9,5 +10,6 @@ export class CreateRuleDto {
   pattern!: string;
 
   @IsIn(ruleActionEnum.enumValues)
+  @ApiProperty({ enum: ruleActionEnum.enumValues, enumName: 'RuleAction' })
   action!: RuleAction;
 }

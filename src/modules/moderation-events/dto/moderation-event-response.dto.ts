@@ -1,3 +1,5 @@
+import { ApiProperty } from '@nestjs/swagger';
+import { moderationActorTypeEnum, moderationEventTypeEnum } from '../../../database/schema';
 import type {
   ModerationActorType,
   ModerationEvent,
@@ -7,13 +9,16 @@ import type {
 export class ModerationEventResponseDto {
   seq!: number;
   id!: string;
+  @ApiProperty({ enum: moderationEventTypeEnum.enumValues, enumName: 'ModerationEventType' })
   eventType!: ModerationEventType;
+  @ApiProperty({ enum: moderationActorTypeEnum.enumValues, enumName: 'ModerationActorType' })
   actorType!: ModerationActorType;
   actorId!: string | null;
   subjectUserId!: string;
   roomId!: string | null;
   messageId!: string | null;
   refersToEventId!: string | null;
+  @ApiProperty({ type: 'object', additionalProperties: true })
   payload!: Record<string, unknown>;
   occurredAt!: Date;
 

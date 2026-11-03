@@ -1,4 +1,6 @@
 import { Body, Controller, HttpCode, HttpStatus, Param, ParseUUIDPipe, Post } from '@nestjs/common';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { ApiEnvelope } from '../../common/decorators/api-envelope.decorator';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import { Roles } from '../../common/decorators/roles.decorator';
 import { UserResponseDto } from '../users/dto/user-response.dto';
@@ -7,6 +9,8 @@ import { SanctionReasonDto } from './dto/sanction-reason.dto';
 import { SuspendUserDto } from './dto/suspend-user.dto';
 import { SanctionsService } from './sanctions.service';
 
+@ApiTags('Admin – Sanctions')
+@ApiBearerAuth()
 @Roles('ADMIN')
 @Controller('admin/users/:id')
 export class AdminSanctionsController {
@@ -14,6 +18,7 @@ export class AdminSanctionsController {
 
   @Post('suspend')
   @HttpCode(HttpStatus.OK)
+  @ApiEnvelope(UserResponseDto)
   async suspend(
     @Param('id', ParseUUIDPipe) userId: string,
     @Body() dto: SuspendUserDto,
@@ -24,6 +29,7 @@ export class AdminSanctionsController {
 
   @Post('ban')
   @HttpCode(HttpStatus.OK)
+  @ApiEnvelope(UserResponseDto)
   async ban(
     @Param('id', ParseUUIDPipe) userId: string,
     @Body() dto: SanctionReasonDto,
@@ -34,6 +40,7 @@ export class AdminSanctionsController {
 
   @Post('sanctions/:eventId/revoke')
   @HttpCode(HttpStatus.OK)
+  @ApiEnvelope(UserResponseDto)
   async revoke(
     @Param('id', ParseUUIDPipe) userId: string,
     @Param('eventId', ParseUUIDPipe) eventId: string,

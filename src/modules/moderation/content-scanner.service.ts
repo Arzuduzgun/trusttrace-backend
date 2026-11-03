@@ -10,7 +10,6 @@ const MIN_PREFIX_MATCH_LENGTH = 4;
 export class ContentScannerService {
   constructor(private readonly rulesService: ModerationRulesService) {}
 
-  
   async scan(text: string): Promise<ScanResult> {
     const words = toWords(normalizeText(text));
     const sentence = ` ${words.join(' ')}`;

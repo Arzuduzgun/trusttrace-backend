@@ -1,10 +1,12 @@
 import { Controller, Get, HttpStatus, Res } from '@nestjs/common';
+import { ApiTags } from '@nestjs/swagger';
 import type { Response } from 'express';
+import { Public } from '../../common/decorators/public.decorator';
 import { RawResponse } from '../../common/decorators/raw-response.decorator';
 import { HealthService } from './health.service';
 import type { ReadinessReport } from './health.types';
-import { Public } from '../../common/decorators/public.decorator';
 
+@ApiTags('Health')
 @RawResponse()
 @Public()
 @Controller('health')

@@ -1,3 +1,5 @@
+import { ApiProperty } from '@nestjs/swagger';
+import { messageStatusEnum } from '../../../database/schema';
 import type { Message, MessageStatus } from '../messages.types';
 
 export class MessageResponseDto {
@@ -6,6 +8,7 @@ export class MessageResponseDto {
   senderId!: string;
   senderName!: string;
   body!: string;
+  @ApiProperty({ enum: messageStatusEnum.enumValues, enumName: 'MessageStatus' })
   status!: MessageStatus;
   clientMessageId!: string;
   createdAt!: Date;

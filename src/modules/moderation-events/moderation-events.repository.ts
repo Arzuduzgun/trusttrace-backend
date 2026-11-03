@@ -28,7 +28,6 @@ const EVENT_COLUMNS = {
 export class ModerationEventsRepository {
   constructor(@Inject(DRIZZLE) private readonly db: Database) {}
 
-  
   async append(event: NewModerationEvent, executor: DbExecutor = this.db): Promise<void> {
     await executor.insert(moderationEvents).values(event);
   }

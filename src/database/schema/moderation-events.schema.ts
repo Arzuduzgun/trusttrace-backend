@@ -28,13 +28,13 @@ export const moderationEvents = pgTable(
     eventType: moderationEventTypeEnum('event_type').notNull(),
     actorType: moderationActorTypeEnum('actor_type').notNull(),
     actorId: uuid('actor_id').references(() => users.id),
-    subjectUserId: uuid('subject_user_id') 
+    subjectUserId: uuid('subject_user_id')
       .notNull()
       .references(() => users.id),
     roomId: uuid('room_id').references(() => rooms.id),
     messageId: uuid('message_id').references(() => messages.id),
     refersToEventId: uuid('refers_to_event_id'),
-    payload: jsonb('payload').$type<Record<string, unknown>>().notNull(), 
+    payload: jsonb('payload').$type<Record<string, unknown>>().notNull(),
     traceId: varchar('trace_id', { length: 64 }),
     occurredAt: timestamp('occurred_at', { withTimezone: true, precision: 3 })
       .notNull()

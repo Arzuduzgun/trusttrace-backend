@@ -5,6 +5,7 @@ import { ERROR_REGISTRY } from './common/errors/error-registry';
 import { validationExceptionFactory } from './common/validation/validation-exception.factory';
 import { AppConfigService } from './config/app-config.service';
 import { Logger as PinoLogger } from 'nestjs-pino';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, { bufferLogs: true });
@@ -21,6 +22,14 @@ async function bootstrap() {
       exceptionFactory: validationExceptionFactory,
     }),
   );
+
+  const swaggerConfig = new DocumentBuilder()
+    .setTitle('TrustTrace API')
+    .setDescription('Müşteri hizmetleri chat platformu')
+    .setVersion('1.0')
+    .addBearerAuth()
+    .build();
+  SwaggerModule.setup('docs', app, SwaggerModule.createDocument(app, swaggerConfig));
 
   await app.listen(config.get('PORT'));
   new Logger('Bootstrap').log(`${ERROR_REGISTRY.size} error codes registered`);
