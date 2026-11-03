@@ -4,7 +4,7 @@ import type { Response } from 'express';
 import { Public } from '../../common/decorators/public.decorator';
 import { RawResponse } from '../../common/decorators/raw-response.decorator';
 import { HealthService } from './health.service';
-import type { ReadinessReport } from './health.types';
+import type { ReadinessReport } from './types/health.types';
 
 @ApiTags('Health')
 @RawResponse()

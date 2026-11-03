@@ -17,8 +17,9 @@ import { validationExceptionFactory } from '../../common/validation/validation-e
 import { WsTicketService } from '../auth/ws-ticket.service';
 import { RoomsService } from '../rooms/rooms.service';
 import { UsersService } from '../users/users.service';
-import type { User } from '../users/users.types';
-import { CHAT_EVENTS, roomChannel, userChannel, type ChatSocketData } from './chat.events';
+import type { User } from '../users/types/users.types';
+import { CHAT_EVENTS, roomChannel, userChannel } from './chat.events';
+import type { ChatSocketData } from './types/chat-socket.types';
 import { JoinRoomDto } from './dto/join-room.dto';
 import { MessageResponseDto } from './dto/message-response.dto';
 import { SendMessageDto } from './dto/send-message.dto';

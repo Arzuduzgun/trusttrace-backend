@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { userRoleEnum, userStatusEnum } from '../../../database/schema';
-import type { User, UserRole, UserStatus } from '../users.types';
+import type { User, UserRole, UserStatus } from '../types/users.types';
 
 export class UserResponseDto {
   id!: string;

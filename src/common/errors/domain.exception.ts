@@ -1,5 +1,5 @@
 import { HttpException } from '@nestjs/common';
-import type { ErrorCodeDefinition, ErrorDetail } from './error-code.types';
+import type { ErrorCodeDefinition, ErrorDetail } from './types/error-code.types';
 
 type MessageParams = Readonly<Record<string, string | number>>;
 

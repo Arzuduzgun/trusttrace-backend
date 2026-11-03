@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { messageStatusEnum } from '../../../database/schema';
-import type { Message, MessageStatus } from '../messages.types';
+import type { Message, MessageStatus } from '../types/messages.types';
 
 export class MessageResponseDto {
   id!: string;

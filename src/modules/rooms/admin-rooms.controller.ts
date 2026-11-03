@@ -3,7 +3,7 @@ import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { ApiEnvelope } from '../../common/decorators/api-envelope.decorator';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import { Roles } from '../../common/decorators/roles.decorator';
-import type { User } from '../users/users.types';
+import type { User } from '../users/types/users.types';
 import { AddMemberDto } from './dto/add-member.dto';
 import { CreateRoomDto } from './dto/create-room.dto';
 import { RoomResponseDto } from './dto/room-response.dto';

@@ -13,9 +13,9 @@ import type {
   UserListFilter,
   UserRole,
   UserStatusChange,
-} from './users.types';
+} from './types/users.types';
 import { ModerationEventsRepository } from '../moderation-events/moderation-events.repository';
-import { NewModerationEvent } from '../moderation-events/moderation-events.types';
+import { NewModerationEvent } from '../moderation-events/types/moderation-events.types';
 
 const USER_COLUMNS = {
   id: users.id,

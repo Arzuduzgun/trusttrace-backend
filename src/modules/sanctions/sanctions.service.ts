@@ -4,13 +4,13 @@ import { TokenService } from '../auth/token.service';
 import { CHAT_EVENTS } from '../chat/chat.events';
 import { ChatNotifierService } from '../chat/chat-notifier.service';
 import { ModerationEventsService } from '../moderation-events/moderation-events.service';
-import type { NewModerationEvent } from '../moderation-events/moderation-events.types';
+import type { NewModerationEvent } from '../moderation-events/types/moderation-events.types';
 import { UsersService } from '../users/users.service';
-import type { User } from '../users/users.types';
+import type { User } from '../users/types/users.types';
 import type { SanctionReasonDto } from './dto/sanction-reason.dto';
 import type { SuspendUserDto } from './dto/suspend-user.dto';
 import { SANCTION_ERRORS } from './sanctions.errors';
-import type { SanctionType } from './sanctions.types';
+import type { SanctionType } from './types/sanctions.types';
 
 const HOUR_IN_MS = 60 * 60 * 1000;
 

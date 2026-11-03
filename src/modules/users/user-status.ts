@@ -1,4 +1,4 @@
-import type { User } from './users.types';
+import type { User } from './types/users.types';
 
 export function canSendMessages(user: User, now: Date = new Date()): boolean {
   if (user.status === 'ACTIVE') {

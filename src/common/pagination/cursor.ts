@@ -1,10 +1,6 @@
 import { COMMON_ERRORS } from '../errors/common.errors';
 import { DomainException } from '../errors/domain.exception';
-
-export interface CursorPosition {
-  createdAt: Date;
-  id: string;
-}
+import { CursorPosition } from '../types/cursor.types';
 
 //Bir mesajın zamanını ve id’sini alıp tek bir metne çevirir.
 export function encodeCursor(position: CursorPosition): string {
@@ -20,3 +16,4 @@ export function decodeCursor(cursor: string): CursorPosition {
   }
   return { createdAt, id };
 }
+export type { CursorPosition };

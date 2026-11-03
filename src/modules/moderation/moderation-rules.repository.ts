@@ -6,7 +6,7 @@ import type { Database } from '../../database/database.types';
 import { isUniqueViolation } from '../../database/postgres-errors';
 import { moderationRules } from '../../database/schema';
 import { MODERATION_ERRORS } from './moderation.errors';
-import type { ModerationRule, NewModerationRule, RuleChanges } from './moderation.types';
+import type { ModerationRule, NewModerationRule, RuleChanges } from './types/moderation.types';
 
 const RULE_COLUMNS = {
   id: moderationRules.id,

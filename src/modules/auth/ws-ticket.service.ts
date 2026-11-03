@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { AppConfigService } from '../../config/app-config.service';
-import type { WsTicket } from './auth.types';
+import type { WsTicket } from './types/auth.types';
 
 const WS_TICKET_TTL_SECONDS = 60;
 

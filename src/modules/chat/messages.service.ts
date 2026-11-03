@@ -5,14 +5,14 @@ import { decodeCursor, encodeCursor } from '../../common/pagination/cursor';
 import type { Paginated } from '../../common/types/api-response.types';
 import { RoomsService } from '../rooms/rooms.service';
 import { UsersService } from '../users/users.service';
-import type { User } from '../users/users.types';
+import type { User } from '../users/types/users.types';
 import { CHAT_ERRORS } from './chat.errors';
 import { MessageResponseDto } from './dto/message-response.dto';
 import { MessagesRepository } from './messages.repository';
-import { Message, MessageStatus } from './messages.types';
-import { ScanResult, ScanVerdict } from '../moderation/moderation.types';
+import { Message, MessageStatus } from './types/messages.types';
+import { ScanResult, ScanVerdict } from '../moderation/types/moderation.types';
 import { ContentScannerService } from '../moderation/content-scanner.service';
-import { NewModerationEvent } from '../moderation-events/moderation-events.types';
+import { NewModerationEvent } from '../moderation-events/types/moderation-events.types';
 import { canSendMessages } from '../users/user-status';
 
 const STATUS_BY_VERDICT: Record<ScanVerdict, MessageStatus> = {

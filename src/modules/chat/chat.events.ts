@@ -1,5 +1,3 @@
-import type { User } from '../users/users.types';
-
 export const CHAT_EVENTS = {
   JOIN_ROOM: 'room:join',
   LEAVE_ROOM: 'room:leave',
@@ -12,7 +10,3 @@ export const CHAT_EVENTS = {
 export const roomChannel = (roomId: string): string => `room:${roomId}`;
 
 export const userChannel = (userId: string): string => `user:${userId}`;
-
-export interface ChatSocketData {
-  user: User;
-}

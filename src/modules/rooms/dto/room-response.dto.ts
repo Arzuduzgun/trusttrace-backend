@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { roomStatusEnum, roomTypeEnum } from '../../../database/schema';
-import type { Room, RoomStatus, RoomType } from '../rooms.types';
+import type { Room, RoomStatus, RoomType } from '../types/rooms.types';
 
 export class RoomResponseDto {
   id!: string;

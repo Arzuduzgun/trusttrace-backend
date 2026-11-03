@@ -1,11 +1,6 @@
 import { applyDecorators, type Type } from '@nestjs/common';
 import { ApiExtraModels, ApiResponse, getSchemaPath } from '@nestjs/swagger';
-
-interface ApiEnvelopeOptions {
-  isArray?: boolean;
-  paginated?: boolean;
-  status?: number;
-}
+import { ApiEnvelopeOptions } from '../types/api-envelope-options.types';
 
 export const ApiEnvelope = (
   model: Type<object>,

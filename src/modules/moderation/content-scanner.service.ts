@@ -1,6 +1,6 @@
 //Bir metni aktif kurallarla karşılaştırır ve karar verir.
 import { Injectable } from '@nestjs/common';
-import type { RuleMatch, ScanResult, ScanVerdict } from './moderation.types';
+import type { RuleMatch, ScanResult, ScanVerdict } from './types/moderation.types';
 import { ModerationRulesService } from './moderation-rules.service';
 import { normalizeText, toWords } from './text-normalizer';
 

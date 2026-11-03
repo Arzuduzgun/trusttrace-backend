@@ -6,7 +6,7 @@ import type { Database } from '../../database/database.types';
 import { isUniqueViolation } from '../../database/postgres-errors';
 import { roomMembers, rooms } from '../../database/schema';
 import { ROOM_ERRORS } from './rooms.errors';
-import type { MemberRole, NewRoom, NewRoomMember, Room, RoomType } from './rooms.types';
+import type { MemberRole, NewRoom, NewRoomMember, Room, RoomType } from './types/rooms.types';
 
 const ROOM_COLUMNS = {
   id: rooms.id,

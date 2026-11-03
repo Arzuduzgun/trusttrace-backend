@@ -9,12 +9,7 @@ import {
 import type { Response, Request } from 'express';
 import { COMMON_ERRORS } from '../errors/common.errors';
 import { DomainException } from '../errors/domain.exception';
-import type { ApiFailure } from '../types/api-response.types';
-
-interface ErrorResponse {
-  status: number;
-  body: ApiFailure;
-}
+import { ErrorResponse } from '../types/error-response.types';
 
 @Catch()
 export class GlobalExceptionFilter implements ExceptionFilter {

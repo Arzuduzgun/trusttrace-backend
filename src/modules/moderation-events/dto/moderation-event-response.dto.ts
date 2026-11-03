@@ -4,7 +4,7 @@ import type {
   ModerationActorType,
   ModerationEvent,
   ModerationEventType,
-} from '../moderation-events.types';
+} from '../types/moderation-events.types';
 
 export class ModerationEventResponseDto {
   seq!: number;

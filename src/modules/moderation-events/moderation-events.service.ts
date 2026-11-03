@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { ModerationEventsRepository } from './moderation-events.repository';
-import type { ModerationEvent, ModerationEventFilter } from './moderation-events.types';
+import type { ModerationEvent, ModerationEventFilter } from './types/moderation-events.types';
 
 @Injectable()
 export class ModerationEventsService {

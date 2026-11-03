@@ -4,7 +4,7 @@ import { JwtService } from '@nestjs/jwt';
 import { DomainException } from '../../common/errors/domain.exception';
 import { AppConfigService } from '../../config/app-config.service';
 import { AUTH_ERRORS } from './auth.errors';
-import type { AccessTokenPayload, NewRefreshToken, TokenPair } from './auth.types';
+import type { AccessTokenPayload, NewRefreshToken, TokenPair } from './types/auth.types';
 import { RefreshTokensRepository } from './refresh-tokens.repository';
 
 const DAY_IN_MS = 24 * 60 * 60 * 1000;

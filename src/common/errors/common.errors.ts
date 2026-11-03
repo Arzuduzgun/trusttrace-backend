@@ -1,5 +1,5 @@
 import { HttpStatus } from '@nestjs/common';
-import type { ErrorCatalog } from './error-code.types';
+import type { ErrorCatalog } from './types/error-code.types';
 
 export const COMMON_ERRORS = {
   VALIDATION_FAILED: {

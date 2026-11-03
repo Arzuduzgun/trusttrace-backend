@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { ruleActionEnum, ruleMatchTypeEnum } from '../../../database/schema';
-import type { ModerationRule, RuleAction, RuleMatchType } from '../moderation.types';
+import type { ModerationRule, RuleAction, RuleMatchType } from '../types/moderation.types';
 
 export class RuleResponseDto {
   id!: string;

@@ -3,7 +3,7 @@ import { Reflector } from '@nestjs/core';
 import { ROLES_KEY } from '../../../common/decorators/roles.decorator';
 import { DomainException } from '../../../common/errors/domain.exception';
 import type { AuthenticatedRequest } from '../../../common/types/authenticated-request.types';
-import type { UserRole } from '../../users/users.types';
+import type { UserRole } from '../../users/types/users.types';
 import { AUTH_ERRORS } from '../auth.errors';
 
 @Injectable()

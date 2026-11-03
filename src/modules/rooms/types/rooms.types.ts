@@ -1,4 +1,4 @@
-import type { memberRoleEnum, roomStatusEnum, roomTypeEnum } from '../../database/schema';
+import type { memberRoleEnum, roomStatusEnum, roomTypeEnum } from '../../../database/schema';
 
 export type RoomType = (typeof roomTypeEnum.enumValues)[number];
 export type RoomStatus = (typeof roomStatusEnum.enumValues)[number];

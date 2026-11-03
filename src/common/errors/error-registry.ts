@@ -5,7 +5,7 @@ import { ROOM_ERRORS } from '../../modules/rooms/rooms.errors';
 import { SANCTION_ERRORS } from '../../modules/sanctions/sanctions.errors';
 import { USER_ERRORS } from '../../modules/users/users.errors';
 import { COMMON_ERRORS } from './common.errors';
-import type { ErrorCatalog, ErrorCodeDefinition } from './error-code.types';
+import type { ErrorCatalog, ErrorCodeDefinition } from './types/error-code.types';
 
 function buildRegistry(catalogs: ErrorCatalog[]): ReadonlyMap<string, ErrorCodeDefinition> {
   const registry = new Map<string, ErrorCodeDefinition>();

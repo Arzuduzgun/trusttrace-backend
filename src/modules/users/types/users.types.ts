@@ -1,4 +1,4 @@
-import type { userRoleEnum, userStatusEnum } from '../../database/schema';
+import type { userRoleEnum, userStatusEnum } from '../../../database/schema';
 
 export type UserRole = (typeof userRoleEnum.enumValues)[number];
 export type UserStatus = (typeof userStatusEnum.enumValues)[number];

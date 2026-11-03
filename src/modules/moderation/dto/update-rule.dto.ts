@@ -1,6 +1,6 @@
 import { IsBoolean, IsIn, IsOptional } from 'class-validator';
 import { ruleActionEnum } from '../../../database/schema';
-import type { RuleAction } from '../moderation.types';
+import type { RuleAction } from '../types/moderation.types';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class UpdateRuleDto {

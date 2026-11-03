@@ -3,7 +3,7 @@ import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { ApiEnvelope } from '../../common/decorators/api-envelope.decorator';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import { UserResponseDto } from './dto/user-response.dto';
-import type { User } from './users.types';
+import type { User } from './types/users.types';
 
 @ApiTags('Me')
 @ApiBearerAuth()

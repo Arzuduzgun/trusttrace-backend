@@ -3,9 +3,9 @@ import { and, desc, eq, ne, or, sql, type SQL } from 'drizzle-orm';
 import { DRIZZLE } from '../../database/database.tokens';
 import type { Database } from '../../database/database.types';
 import { messages } from '../../database/schema';
-import type { Message, MessagePageQuery, NewMessage } from './messages.types';
+import type { Message, MessagePageQuery, NewMessage } from './types/messages.types';
 import { ModerationEventsRepository } from '../moderation-events/moderation-events.repository';
-import { NewModerationEvent } from '../moderation-events/moderation-events.types';
+import { NewModerationEvent } from '../moderation-events/types/moderation-events.types';
 
 const MESSAGE_COLUMNS = {
   id: messages.id,

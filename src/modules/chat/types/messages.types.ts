@@ -1,5 +1,5 @@
-import type { messageStatusEnum } from '../../database/schema';
-import type { CursorPosition } from '../../common/pagination/cursor';
+import type { messageStatusEnum } from '../../../database/schema';
+import type { CursorPosition } from '../../../common/pagination/cursor';
 
 export type MessageStatus = (typeof messageStatusEnum.enumValues)[number];
 

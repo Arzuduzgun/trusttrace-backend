@@ -1,11 +1,11 @@
 //Kuralları önbellekte tutar.
 import { Injectable } from '@nestjs/common';
 import { DomainException } from '../../common/errors/domain.exception';
-import type { User } from '../users/users.types';
+import type { User } from '../users/types/users.types';
 import type { CreateRuleDto } from './dto/create-rule.dto';
 import type { UpdateRuleDto } from './dto/update-rule.dto';
 import { MODERATION_ERRORS } from './moderation.errors';
-import type { ModerationRule, RuleChanges } from './moderation.types';
+import type { ModerationRule, RuleChanges } from './types/moderation.types';
 import { ModerationRulesRepository } from './moderation-rules.repository';
 import { normalizeText, toWords } from './text-normalizer';
 

@@ -7,7 +7,7 @@ import type {
   ModerationEvent,
   ModerationEventFilter,
   NewModerationEvent,
-} from './moderation-events.types';
+} from './types/moderation-events.types';
 
 const EVENT_COLUMNS = {
   seq: moderationEvents.seq,

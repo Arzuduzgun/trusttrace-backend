@@ -7,9 +7,9 @@ import { DomainException } from '../../../common/errors/domain.exception';
 import type { AuthenticatedRequest } from '../../../common/types/authenticated-request.types';
 import { AppConfigService } from '../../../config/app-config.service';
 import { UsersService } from '../../users/users.service';
-import type { User } from '../../users/users.types';
+import type { User } from '../../users/types/users.types';
 import { AUTH_ERRORS } from '../auth.errors';
-import type { VerifiedAccessToken } from '../auth.types';
+import type { VerifiedAccessToken } from '../types/auth.types';
 
 @Injectable()
 export class JwtAuthGuard implements CanActivate {

@@ -1,4 +1,4 @@
-import type { ruleActionEnum, ruleMatchTypeEnum } from '../../database/schema';
+import type { ruleActionEnum, ruleMatchTypeEnum } from '../../../database/schema';
 
 export type RuleMatchType = (typeof ruleMatchTypeEnum.enumValues)[number];
 export type RuleAction = (typeof ruleActionEnum.enumValues)[number];

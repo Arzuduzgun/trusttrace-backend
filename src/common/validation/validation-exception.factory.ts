@@ -1,7 +1,7 @@
 import type { ValidationError } from 'class-validator';
 import { COMMON_ERRORS } from '../errors/common.errors';
 import { DomainException } from '../errors/domain.exception';
-import type { ErrorDetail } from '../errors/error-code.types';
+import type { ErrorDetail } from '../errors/types/error-code.types';
 
 function flatten(errors: ValidationError[], parentPath = ''): ErrorDetail[] {
   return errors.flatMap((error) => {

@@ -3,7 +3,7 @@ import { and, eq, isNull } from 'drizzle-orm';
 import { DRIZZLE } from '../../database/database.tokens';
 import type { Database } from '../../database/database.types';
 import { refreshTokens } from '../../database/schema';
-import type { NewRefreshToken, RefreshTokenRecord } from './auth.types';
+import type { NewRefreshToken, RefreshTokenRecord } from './types/auth.types';
 
 @Injectable()
 export class RefreshTokensRepository {

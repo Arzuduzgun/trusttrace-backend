@@ -1,4 +1,4 @@
-import type { moderationActorTypeEnum, moderationEventTypeEnum } from '../../database/schema';
+import type { moderationActorTypeEnum, moderationEventTypeEnum } from '../../../database/schema';
 
 export type ModerationEventType = (typeof moderationEventTypeEnum.enumValues)[number];
 export type ModerationActorType = (typeof moderationActorTypeEnum.enumValues)[number];

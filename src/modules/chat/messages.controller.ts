@@ -4,7 +4,7 @@ import { ApiEnvelope } from '../../common/decorators/api-envelope.decorator';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import { CursorQueryDto } from '../../common/dto/cursor-query.dto';
 import type { Paginated } from '../../common/types/api-response.types';
-import type { User } from '../users/users.types';
+import type { User } from '../users/types/users.types';
 import { MessageResponseDto } from './dto/message-response.dto';
 import { MessagesService } from './messages.service';
 

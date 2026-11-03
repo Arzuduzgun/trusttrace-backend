@@ -3,7 +3,7 @@ import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { ApiEnvelope } from '../../common/decorators/api-envelope.decorator';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import { Roles } from '../../common/decorators/roles.decorator';
-import type { User } from '../users/users.types';
+import type { User } from '../users/types/users.types';
 import { CreateRuleDto } from './dto/create-rule.dto';
 import { RuleResponseDto } from './dto/rule-response.dto';
 import { UpdateRuleDto } from './dto/update-rule.dto';

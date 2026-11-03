@@ -1,10 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { DomainException } from '../../common/errors/domain.exception';
 import { UsersService } from '../users/users.service';
-import type { User } from '../users/users.types';
+import type { User } from '../users/types/users.types';
 import { ROOM_ERRORS } from './rooms.errors';
 import { RoomsRepository } from './rooms.repository';
-import type { Room } from './rooms.types';
+import type { Room } from './types/rooms.types';
 
 @Injectable()
 export class RoomsService {

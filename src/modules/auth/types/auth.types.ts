@@ -1,4 +1,4 @@
-import type { UserResponseDto } from '../users/dto/user-response.dto';
+import type { UserResponseDto } from '../../users/dto/user-response.dto';
 
 export interface AccessTokenPayload {
   sub: string;

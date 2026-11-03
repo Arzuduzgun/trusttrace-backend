@@ -1,5 +1,5 @@
 import { HttpStatus } from '@nestjs/common';
-import type { ErrorCatalog } from '../../common/errors/error-code.types';
+import type { ErrorCatalog } from '../../common/errors/types/error-code.types';
 
 export const MODERATION_ERRORS = {
   MODERATION_RULE_NOT_FOUND: {

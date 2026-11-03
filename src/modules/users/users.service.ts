@@ -8,8 +8,8 @@ import type {
   UserCredentials,
   UserListFilter,
   UserStatusChange,
-} from './users.types';
-import { NewModerationEvent } from '../moderation-events/moderation-events.types';
+} from './types/users.types';
+import { NewModerationEvent } from '../moderation-events/types/moderation-events.types';
 
 function normalizeEmail(email: string): string {
   return email.trim().toLowerCase();

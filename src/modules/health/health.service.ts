@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { HealthRepository } from './health.repository';
-import type { DependencyState, ReadinessReport } from './health.types';
+import type { DependencyState, ReadinessReport } from './types/health.types';
 
 const CHECK_TIMEOUT_MS = 2000;
 

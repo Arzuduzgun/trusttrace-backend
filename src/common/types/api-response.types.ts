@@ -1,4 +1,4 @@
-import type { ErrorDetail } from '../errors/error-code.types';
+import type { ErrorDetail } from '../errors/types/error-code.types';
 
 export type ListMeta = Readonly<Record<string, string | number | boolean | null>>;
 

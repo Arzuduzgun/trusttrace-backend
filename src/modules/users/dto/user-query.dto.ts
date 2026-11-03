@@ -1,7 +1,7 @@
 import { Type } from 'class-transformer';
 import { IsIn, IsInt, IsOptional, Max, Min } from 'class-validator';
 import { userStatusEnum } from '../../../database/schema';
-import type { UserStatus } from '../users.types';
+import type { UserStatus } from '../types/users.types';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class UserQueryDto {

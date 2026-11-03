@@ -4,7 +4,7 @@ import { ApiEnvelope } from '../../common/decorators/api-envelope.decorator';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import { Roles } from '../../common/decorators/roles.decorator';
 import { UserResponseDto } from '../users/dto/user-response.dto';
-import type { User } from '../users/users.types';
+import type { User } from '../users/types/users.types';
 import { SanctionReasonDto } from './dto/sanction-reason.dto';
 import { SuspendUserDto } from './dto/suspend-user.dto';
 import { SanctionsService } from './sanctions.service';
