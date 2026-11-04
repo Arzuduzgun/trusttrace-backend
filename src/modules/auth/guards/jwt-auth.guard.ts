@@ -10,6 +10,7 @@ import { UsersService } from '../../users/users.service';
 import type { User } from '../../users/types/users.types';
 import { AUTH_ERRORS } from '../auth.errors';
 import type { VerifiedAccessToken } from '../types/auth.types';
+import { TokenService } from '../token.service';
 
 @Injectable()
 export class JwtAuthGuard implements CanActivate {
@@ -18,6 +19,7 @@ export class JwtAuthGuard implements CanActivate {
     private readonly jwtService: JwtService,
     private readonly config: AppConfigService,
     private readonly usersService: UsersService,
+    private readonly tokenService: TokenService,
   ) {}
   async canActivate(context: ExecutionContext): Promise<boolean> {
     if (context.getType() !== 'http') {
@@ -68,6 +70,9 @@ export class JwtAuthGuard implements CanActivate {
     }
     const validAfterSeconds = Math.floor(user.tokensValidAfter.getTime() / 1000);
     if (payload.iat < validAfterSeconds) {
+      throw new DomainException(AUTH_ERRORS.AUTH_TOKEN_REVOKED);
+    }
+    if (!payload.sid || !(await this.tokenService.isSessionActive(payload.sid))) {
       throw new DomainException(AUTH_ERRORS.AUTH_TOKEN_REVOKED);
     }
     return user;

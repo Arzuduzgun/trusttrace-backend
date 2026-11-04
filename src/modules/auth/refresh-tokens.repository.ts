@@ -21,6 +21,7 @@ export class RefreshTokensRepository {
         familyId: refreshTokens.familyId,
         expiresAt: refreshTokens.expiresAt,
         revokedAt: refreshTokens.revokedAt,
+        replacedById: refreshTokens.replacedById,
       })
       .from(refreshTokens)
       .where(eq(refreshTokens.tokenHash, tokenHash))
@@ -66,5 +67,14 @@ export class RefreshTokensRepository {
       .update(refreshTokens)
       .set({ revokedAt: new Date() })
       .where(and(eq(refreshTokens.userId, userId), isNull(refreshTokens.revokedAt)));
+  }
+
+  async isFamilyActive(familyId: string): Promise<boolean> {
+    const [row] = await this.db
+      .select({ id: refreshTokens.id })
+      .from(refreshTokens)
+      .where(and(eq(refreshTokens.familyId, familyId), isNull(refreshTokens.revokedAt)))
+      .limit(1);
+    return row !== undefined;
   }
 }

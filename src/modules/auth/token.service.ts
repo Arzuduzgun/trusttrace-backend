@@ -4,10 +4,17 @@ import { JwtService } from '@nestjs/jwt';
 import { DomainException } from '../../common/errors/domain.exception';
 import { AppConfigService } from '../../config/app-config.service';
 import { AUTH_ERRORS } from './auth.errors';
-import type { AccessTokenPayload, NewRefreshToken, TokenPair } from './types/auth.types';
 import { RefreshTokensRepository } from './refresh-tokens.repository';
+import type {
+  AccessTokenPayload,
+  NewRefreshToken,
+  RefreshTokenRecord,
+  RotationResult,
+  TokenPair,
+} from './types/auth.types';
 
 const DAY_IN_MS = 24 * 60 * 60 * 1000;
+const REUSE_GRACE_MS = 10_000;
 
 function hashToken(token: string): string {
   return createHash('sha256').update(token).digest('hex');
@@ -22,17 +29,21 @@ export class TokenService {
   ) {}
 
   async issueForNewSession(userId: string): Promise<TokenPair> {
-    const refresh = this.createRefreshToken(userId, randomUUID());
+    const familyId = randomUUID();
+    const refresh = this.createRefreshToken(userId, familyId);
     await this.refreshTokensRepository.create(refresh.record);
-    return this.buildPair(userId, refresh.token);
+    return this.buildPair(userId, familyId, refresh.token);
   }
 
-  async rotate(refreshToken: string): Promise<{ userId: string; pair: TokenPair }> {
+  async rotate(refreshToken: string): Promise<RotationResult> {
     const record = await this.refreshTokensRepository.findByHash(hashToken(refreshToken));
     if (!record) {
       throw new DomainException(AUTH_ERRORS.AUTH_REFRESH_INVALID);
     }
     if (record.revokedAt) {
+      if (this.isConcurrentRotation(record)) {
+        return this.issueInFamily(record);
+      }
       await this.refreshTokensRepository.revokeFamily(record.familyId);
       throw new DomainException(AUTH_ERRORS.AUTH_REFRESH_REUSED);
     }
@@ -42,13 +53,14 @@ export class TokenService {
     const next = this.createRefreshToken(record.userId, record.familyId);
     const rotated = await this.refreshTokensRepository.rotate(record.id, next.record);
     if (!rotated) {
-      await this.refreshTokensRepository.revokeFamily(record.familyId);
-      throw new DomainException(AUTH_ERRORS.AUTH_REFRESH_REUSED);
+      return this.issueInFamily(record);
     }
-    return { userId: record.userId, pair: await this.buildPair(record.userId, next.token) };
+    return {
+      userId: record.userId,
+      pair: await this.buildPair(record.userId, record.familyId, next.token),
+    };
   }
 
-  // Logout: bu oturumun bütün refresh token'larını iptal eder. Bilinmeyen token sessizce yok sayılır. */
   async revokeSession(refreshToken: string): Promise<void> {
     const record = await this.refreshTokensRepository.findByHash(hashToken(refreshToken));
     if (record) {
@@ -56,9 +68,41 @@ export class TokenService {
     }
   }
 
-  private async buildPair(userId: string, refreshToken: string): Promise<TokenPair> {
+  async revokeAllSessions(userId: string): Promise<void> {
+    await this.refreshTokensRepository.revokeAllForUser(userId);
+  }
+
+  isSessionActive(sessionId: string): Promise<boolean> {
+    return this.refreshTokensRepository.isFamilyActive(sessionId);
+  }
+
+  private isConcurrentRotation(record: RefreshTokenRecord): boolean {
+    return (
+      record.replacedById !== null &&
+      record.revokedAt !== null &&
+      Date.now() - record.revokedAt.getTime() < REUSE_GRACE_MS
+    );
+  }
+
+  private async issueInFamily(record: RefreshTokenRecord): Promise<RotationResult> {
+    if (!(await this.refreshTokensRepository.isFamilyActive(record.familyId))) {
+      throw new DomainException(AUTH_ERRORS.AUTH_REFRESH_REUSED);
+    }
+    const next = this.createRefreshToken(record.userId, record.familyId);
+    await this.refreshTokensRepository.create(next.record);
+    return {
+      userId: record.userId,
+      pair: await this.buildPair(record.userId, record.familyId, next.token),
+    };
+  }
+
+  private async buildPair(
+    userId: string,
+    familyId: string,
+    refreshToken: string,
+  ): Promise<TokenPair> {
     const expiresIn = this.config.get('JWT_ACCESS_TTL_SECONDS');
-    const payload: AccessTokenPayload = { sub: userId, jti: randomUUID() };
+    const payload: AccessTokenPayload = { sub: userId, sid: familyId, jti: randomUUID() };
     const accessToken = await this.jwtService.signAsync(payload, {
       secret: this.config.get('JWT_ACCESS_SECRET'),
       expiresIn,
@@ -73,9 +117,5 @@ export class TokenService {
     const token = randomBytes(32).toString('base64url');
     const expiresAt = new Date(Date.now() + this.config.get('JWT_REFRESH_TTL_DAYS') * DAY_IN_MS);
     return { token, record: { userId, familyId, tokenHash: hashToken(token), expiresAt } };
-  }
-
-  async revokeAllSessions(userId: string): Promise<void> {
-    await this.refreshTokensRepository.revokeAllForUser(userId);
   }
 }
