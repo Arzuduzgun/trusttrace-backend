@@ -10,6 +10,10 @@ import type { RegisterDto } from './dto/register.dto';
 import { PasswordService } from './password.service';
 import { TokenService } from './token.service';
 import { CreateAgentDto } from './dto/create-agent.dto';
+import { RateLimiterService } from '../../redis/rate-limiter.service';
+
+const LOGIN_LIMIT = 10;
+const LOGIN_WINDOW_SECONDS = 15 * 60;
 
 @Injectable()
 export class AuthService {
@@ -17,6 +21,7 @@ export class AuthService {
     private readonly usersService: UsersService,
     private readonly passwordService: PasswordService,
     private readonly tokenService: TokenService,
+    private readonly rateLimiter: RateLimiterService,
   ) {}
 
   async register(dto: RegisterDto): Promise<AuthResult> {
@@ -39,6 +44,11 @@ export class AuthService {
   }
 
   async login(dto: LoginDto): Promise<AuthResult> {
+    const limitKey = `rl:login:${dto.email.trim().toLowerCase()}`;
+    const limit = await this.rateLimiter.consume(limitKey, LOGIN_LIMIT, LOGIN_WINDOW_SECONDS);
+    if (!limit.allowed) {
+      throw new DomainException(AUTH_ERRORS.AUTH_TOO_MANY_ATTEMPTS);
+    }
     const credentials = await this.usersService.findCredentialsByEmail(dto.email);
     const isValid = await this.passwordService.verify(
       dto.password,
@@ -48,6 +58,7 @@ export class AuthService {
       throw new DomainException(AUTH_ERRORS.AUTH_INVALID_CREDENTIALS);
     }
     this.assertNotBanned(credentials.user);
+    await this.rateLimiter.reset(limitKey);
     return this.startSession(credentials.user);
   }
 

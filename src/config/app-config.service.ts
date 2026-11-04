@@ -4,6 +4,7 @@ import type { Env } from './env.schema';
 
 @Injectable()
 export class AppConfigService {
+  redisUrl: string;
   constructor(private readonly config: ConfigService<Env, true>) {}
 
   get<K extends keyof Env>(key: K): Env[K] {

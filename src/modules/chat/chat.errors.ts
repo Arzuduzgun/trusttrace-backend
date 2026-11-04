@@ -17,4 +17,9 @@ export const CHAT_ERRORS = {
     status: HttpStatus.INTERNAL_SERVER_ERROR,
     message: 'Mesaj işlenemedi, lütfen tekrar deneyin.',
   },
+  CHAT_RATE_LIMITED: {
+    code: 'CHAT_RATE_LIMITED',
+    status: HttpStatus.TOO_MANY_REQUESTS,
+    message: 'Çok hızlı mesaj gönderiyorsunuz. Birkaç saniye bekleyip tekrar deneyin.',
+  },
 } as const satisfies ErrorCatalog;

@@ -13,11 +13,13 @@ import { ChatModule } from './modules/chat/chat.module';
 import { ModerationModule } from './modules/moderation/moderation.module';
 import { ModerationEventsModule } from './modules/moderation-events/moderation-events.module';
 import { SanctionsModule } from './modules/sanctions/sanctions.module';
+import { RedisModule } from './redis/redis.module';
 
 @Module({
   imports: [
     AppConfigModule,
     DatabaseModule,
+    RedisModule,
     AppLoggerModule,
     HealthModule,
     UsersModule,

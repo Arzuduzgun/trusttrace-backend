@@ -52,4 +52,9 @@ export const AUTH_ERRORS = {
     status: HttpStatus.FORBIDDEN,
     message: 'Bu işlem için yetkiniz yok.',
   },
+  AUTH_TOO_MANY_ATTEMPTS: {
+    code: 'AUTH_TOO_MANY_ATTEMPTS',
+    status: HttpStatus.TOO_MANY_REQUESTS,
+    message: 'Çok fazla giriş denemesi yapıldı. Lütfen 15 dakika sonra tekrar deneyin.',
+  },
 } as const satisfies ErrorCatalog;

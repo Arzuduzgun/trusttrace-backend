@@ -13,12 +13,13 @@ export class HealthService {
   async checkReadiness(): Promise<ReadinessReport> {
     const checks = {
       database: await this.runCheck('database', () => this.healthRepository.pingDatabase()),
+      redis: await this.runCheck('redis', () => this.healthRepository.pingRedis()),
     };
     const isReady = Object.values(checks).every((state) => state === 'up');
     return { status: isReady ? 'ok' : 'unavailable', checks };
   }
 
-  private async runCheck(name: string, check: () => Promise<boolean>): Promise<DependencyState> {
+  private async runCheck(name: string, check: () => Promise<unknown>): Promise<DependencyState> {
     const timeout = new Promise<never>((_, reject) => {
       setTimeout(() => reject(new Error(`${name} check timed out`)), CHECK_TIMEOUT_MS);
     });

@@ -15,6 +15,7 @@ import { ContentScannerService } from '../moderation/content-scanner.service';
 import { NewModerationEvent } from '../moderation-events/types/moderation-events.types';
 import { canSendMessages } from '../users/user-status';
 import { PinoLogger } from 'nestjs-pino';
+import { RateLimiterService } from '../../redis/rate-limiter.service';
 
 const STATUS_BY_VERDICT: Record<ScanVerdict, MessageStatus> = {
   CLEAN: 'DELIVERED',
@@ -24,6 +25,9 @@ const STATUS_BY_VERDICT: Record<ScanVerdict, MessageStatus> = {
 
 const PROCESSABLE_STATUSES: ReadonlySet<MessageStatus> = new Set(['PENDING', 'FAILED']);
 
+const MESSAGE_LIMIT = 10;
+const MESSAGE_WINDOW_SECONDS = 10;
+
 @Injectable()
 export class MessagesService {
   constructor(
@@ -32,6 +36,7 @@ export class MessagesService {
     private readonly roomsService: RoomsService,
     private readonly usersService: UsersService,
     private readonly contentScanner: ContentScannerService,
+    private readonly rateLimiter: RateLimiterService,
   ) {
     this.logger.setContext(MessagesService.name);
   }
@@ -72,6 +77,14 @@ export class MessagesService {
     const currentSender = await this.usersService.getById(sender.id);
     if (!canSendMessages(currentSender)) {
       throw new DomainException(CHAT_ERRORS.CHAT_SENDER_SUSPENDED);
+    }
+    const limit = await this.rateLimiter.consume(
+      `rl:msg:${currentSender.id}`,
+      MESSAGE_LIMIT,
+      MESSAGE_WINDOW_SECONDS,
+    );
+    if (!limit.allowed) {
+      throw new DomainException(CHAT_ERRORS.CHAT_RATE_LIMITED);
     }
     const room = await this.roomsService.assertCanAccess(roomId, currentSender);
     if (room.status === 'CLOSED') {
