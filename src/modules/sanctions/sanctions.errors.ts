@@ -17,19 +17,14 @@ export const SANCTION_ERRORS = {
     status: HttpStatus.CONFLICT,
     message: 'Bu kullanıcı zaten banlı.',
   },
-  SANCTION_EVENT_NOT_FOUND: {
-    code: 'SANCTION_EVENT_NOT_FOUND',
-    status: HttpStatus.NOT_FOUND,
-    message: 'Ceza kaydı bulunamadı.',
-  },
-  SANCTION_ALREADY_REVOKED: {
-    code: 'SANCTION_ALREADY_REVOKED',
-    status: HttpStatus.CONFLICT,
-    message: 'Bu ceza zaten kaldırılmış.',
-  },
   SANCTION_NOT_CURRENT: {
     code: 'SANCTION_NOT_CURRENT',
     status: HttpStatus.CONFLICT,
     message: 'Bu ceza artık geçerli değil.',
+  },
+  SANCTION_NONE_ACTIVE: {
+    code: 'SANCTION_NONE_ACTIVE',
+    status: HttpStatus.CONFLICT,
+    message: 'Bu kullanıcının kaldırılabilecek bir cezası yok.',
   },
 } as const satisfies ErrorCatalog;

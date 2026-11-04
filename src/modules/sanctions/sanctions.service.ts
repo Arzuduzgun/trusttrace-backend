@@ -7,6 +7,7 @@ import { ModerationEventsService } from '../moderation-events/moderation-events.
 import type { NewModerationEvent } from '../moderation-events/types/moderation-events.types';
 import { UsersService } from '../users/users.service';
 import type { User } from '../users/types/users.types';
+import type { RevokeSanctionDto } from './dto/revoke-sanction.dto';
 import type { SanctionReasonDto } from './dto/sanction-reason.dto';
 import type { SuspendUserDto } from './dto/suspend-user.dto';
 import { SANCTION_ERRORS } from './sanctions.errors';
@@ -31,11 +32,12 @@ export class SanctionsService {
     const updated = await this.usersService.applyStatusChange(
       target.id,
       { status: 'SUSPENDED', suspendedUntil },
-      this.imposedEvent(target.id, admin, 'SUSPEND', dto.reason, suspendedUntil),
+      this.imposedEvent(target.id, admin, 'SUSPEND', dto, suspendedUntil),
     );
     this.chatNotifier.notifyUser(target.id, CHAT_EVENTS.SANCTION_APPLIED, {
       sanction: 'SUSPEND',
-      reason: dto.reason,
+      reasonCode: dto.reasonCode,
+      note: dto.note ?? null,
       suspendedUntil,
     });
     return updated;
@@ -46,30 +48,23 @@ export class SanctionsService {
     const updated = await this.usersService.applyStatusChange(
       target.id,
       { status: 'BANNED', suspendedUntil: null, tokensValidAfter: new Date() },
-      this.imposedEvent(target.id, admin, 'BAN', dto.reason, null),
+      this.imposedEvent(target.id, admin, 'BAN', dto, null),
     );
     await this.tokenService.revokeAllSessions(target.id);
     this.chatNotifier.notifyUser(target.id, CHAT_EVENTS.SANCTION_APPLIED, {
       sanction: 'BAN',
-      reason: dto.reason,
+      reasonCode: dto.reasonCode,
+      note: dto.note ?? null,
       suspendedUntil: null,
     });
     this.chatNotifier.disconnectUser(target.id);
     return updated;
   }
 
-  async revoke(
-    targetId: string,
-    eventId: string,
-    admin: User,
-    dto: SanctionReasonDto,
-  ): Promise<User> {
-    const event = await this.eventsService.findById(eventId);
-    if (!event || event.subjectUserId !== targetId || event.eventType !== 'SANCTION_IMPOSED') {
-      throw new DomainException(SANCTION_ERRORS.SANCTION_EVENT_NOT_FOUND);
-    }
-    if (await this.eventsService.hasRevocation(event.id)) {
-      throw new DomainException(SANCTION_ERRORS.SANCTION_ALREADY_REVOKED);
+  async revoke(targetId: string, admin: User, dto: RevokeSanctionDto): Promise<User> {
+    const event = await this.eventsService.findLatestSanction(targetId);
+    if (!event || (await this.eventsService.hasRevocation(event.id))) {
+      throw new DomainException(SANCTION_ERRORS.SANCTION_NONE_ACTIVE);
     }
     const sanction = event.payload['sanction'];
     const target = await this.usersService.getById(targetId);
@@ -89,14 +84,15 @@ export class SanctionsService {
         messageId: null,
         refersToEventId: event.id,
         traceId: null,
-        payload: { revokedSanction: sanction, reason: dto.reason },
+        payload: { revokedSanction: sanction, reasonCode: dto.reasonCode, note: dto.note ?? null },
       },
     );
-    this.chatNotifier.notifyUser(target.id, CHAT_EVENTS.SANCTION_REVOKED, { reason: dto.reason });
+    this.chatNotifier.notifyUser(target.id, CHAT_EVENTS.SANCTION_REVOKED, {
+      reasonCode: dto.reasonCode,
+    });
     return updated;
   }
 
-  //Admin kendini ya da başka bir admini hedef alıyorsa reddeder.
   private async getSanctionableTarget(targetId: string, admin: User): Promise<User> {
     if (targetId === admin.id) {
       throw new DomainException(SANCTION_ERRORS.SANCTION_CANNOT_TARGET_SELF);
@@ -111,12 +107,11 @@ export class SanctionsService {
     return target;
   }
 
-  //“Ceza verildi” defter kaydını hazırlar: kim verdi, kime, hangi ceza, neden, ne zamana kadar.
   private imposedEvent(
     subjectUserId: string,
     admin: User,
     sanction: SanctionType,
-    reason: string,
+    dto: SanctionReasonDto,
     suspendedUntil: Date | null,
   ): NewModerationEvent {
     return {
@@ -128,7 +123,12 @@ export class SanctionsService {
       messageId: null,
       refersToEventId: null,
       traceId: null,
-      payload: { sanction, reason, suspendedUntil: suspendedUntil?.toISOString() ?? null },
+      payload: {
+        sanction,
+        reasonCode: dto.reasonCode,
+        note: dto.note ?? null,
+        suspendedUntil: suspendedUntil?.toISOString() ?? null,
+      },
     };
   }
 }

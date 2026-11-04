@@ -47,15 +47,6 @@ export class ModerationEventsRepository {
       .limit(filter.limit);
   }
 
-  async findById(id: string): Promise<ModerationEvent | null> {
-    const [row] = await this.db
-      .select(EVENT_COLUMNS)
-      .from(moderationEvents)
-      .where(eq(moderationEvents.id, id))
-      .limit(1);
-    return row ?? null;
-  }
-
   async hasRevocation(eventId: string): Promise<boolean> {
     const [row] = await this.db
       .select({ seq: moderationEvents.seq })
@@ -68,5 +59,20 @@ export class ModerationEventsRepository {
       )
       .limit(1);
     return row !== undefined;
+  }
+
+  async findLatestSanction(userId: string): Promise<ModerationEvent | null> {
+    const [row] = await this.db
+      .select(EVENT_COLUMNS)
+      .from(moderationEvents)
+      .where(
+        and(
+          eq(moderationEvents.subjectUserId, userId),
+          eq(moderationEvents.eventType, 'SANCTION_IMPOSED'),
+        ),
+      )
+      .orderBy(desc(moderationEvents.seq))
+      .limit(1);
+    return row ?? null;
   }
 }

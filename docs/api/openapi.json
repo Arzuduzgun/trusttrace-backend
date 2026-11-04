@@ -662,17 +662,16 @@
         "tags": ["Admin – Sanctions"]
       }
     },
-    "/api/v1/admin/users/{id}/sanctions/{eventId}/revoke": {
+    "/api/v1/admin/users/{id}/revoke": {
       "post": {
         "operationId": "AdminSanctionsController_revoke",
         "parameters": [
-          { "name": "id", "required": true, "in": "path", "schema": { "type": "string" } },
-          { "name": "eventId", "required": true, "in": "path", "schema": { "type": "string" } }
+          { "name": "id", "required": true, "in": "path", "schema": { "type": "string" } }
         ],
         "requestBody": {
           "required": true,
           "content": {
-            "application/json": { "schema": { "$ref": "#/components/schemas/SanctionReasonDto" } }
+            "application/json": { "schema": { "$ref": "#/components/schemas/RevokeSanctionDto" } }
           }
         },
         "responses": {
@@ -891,18 +890,53 @@
           "isActive": { "type": "boolean" }
         }
       },
+      "SanctionReasonCode": {
+        "type": "string",
+        "enum": ["INSULT", "SPAM", "THREAT", "FRAUD", "INAPPROPRIATE_CONTENT", "OTHER"]
+      },
       "SuspendUserDto": {
         "type": "object",
         "properties": {
-          "durationHours": { "type": "number", "minimum": 1, "maximum": 720 },
-          "reason": { "type": "string", "minLength": 3, "maxLength": 500 }
+          "reasonCode": { "allOf": [{ "$ref": "#/components/schemas/SanctionReasonCode" }] },
+          "note": {
+            "type": "string",
+            "minLength": 3,
+            "maxLength": 500,
+            "description": "reasonCode OTHER ise zorunlu."
+          },
+          "durationHours": { "type": "number", "minimum": 1, "maximum": 720 }
         },
-        "required": ["reason"]
+        "required": ["reasonCode"]
       },
       "SanctionReasonDto": {
         "type": "object",
-        "properties": { "reason": { "type": "string", "minLength": 3, "maxLength": 500 } },
-        "required": ["reason"]
+        "properties": {
+          "reasonCode": { "allOf": [{ "$ref": "#/components/schemas/SanctionReasonCode" }] },
+          "note": {
+            "type": "string",
+            "minLength": 3,
+            "maxLength": 500,
+            "description": "reasonCode OTHER ise zorunlu."
+          }
+        },
+        "required": ["reasonCode"]
+      },
+      "RevokeReasonCode": {
+        "type": "string",
+        "enum": ["WRONG_DECISION", "APPEAL_ACCEPTED", "EARLY_RELEASE", "OTHER"]
+      },
+      "RevokeSanctionDto": {
+        "type": "object",
+        "properties": {
+          "reasonCode": { "allOf": [{ "$ref": "#/components/schemas/RevokeReasonCode" }] },
+          "note": {
+            "type": "string",
+            "minLength": 3,
+            "maxLength": 500,
+            "description": "reasonCode OTHER ise zorunlu."
+          }
+        },
+        "required": ["reasonCode"]
       }
     }
   }

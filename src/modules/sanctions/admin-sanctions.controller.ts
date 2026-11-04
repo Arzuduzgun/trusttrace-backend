@@ -8,6 +8,7 @@ import type { User } from '../users/types/users.types';
 import { SanctionReasonDto } from './dto/sanction-reason.dto';
 import { SuspendUserDto } from './dto/suspend-user.dto';
 import { SanctionsService } from './sanctions.service';
+import { RevokeSanctionDto } from './dto/revoke-sanction.dto';
 
 @ApiTags('Admin – Sanctions')
 @ApiBearerAuth()
@@ -38,15 +39,14 @@ export class AdminSanctionsController {
     return UserResponseDto.from(await this.sanctionsService.ban(userId, admin, dto));
   }
 
-  @Post('sanctions/:eventId/revoke')
+  @Post('revoke')
   @HttpCode(HttpStatus.OK)
   @ApiEnvelope(UserResponseDto)
   async revoke(
     @Param('id', ParseUUIDPipe) userId: string,
-    @Param('eventId', ParseUUIDPipe) eventId: string,
-    @Body() dto: SanctionReasonDto,
+    @Body() dto: RevokeSanctionDto,
     @CurrentUser() admin: User,
   ): Promise<UserResponseDto> {
-    return UserResponseDto.from(await this.sanctionsService.revoke(userId, eventId, admin, dto));
+    return UserResponseDto.from(await this.sanctionsService.revoke(userId, admin, dto));
   }
 }

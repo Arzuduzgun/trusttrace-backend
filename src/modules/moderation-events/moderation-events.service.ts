@@ -10,11 +10,11 @@ export class ModerationEventsService {
     return this.eventsRepository.list(filter);
   }
 
-  findById(id: string): Promise<ModerationEvent | null> {
-    return this.eventsRepository.findById(id);
-  }
-
   hasRevocation(eventId: string): Promise<boolean> {
     return this.eventsRepository.hasRevocation(eventId);
+  }
+
+  findLatestSanction(userId: string): Promise<ModerationEvent | null> {
+    return this.eventsRepository.findLatestSanction(userId);
   }
 }
