@@ -1,16 +1,19 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { DomainException } from '../../common/errors/domain.exception';
 import { UsersService } from '../users/users.service';
 import type { User } from '../users/types/users.types';
 import { ROOM_ERRORS } from './rooms.errors';
 import { RoomsRepository } from './rooms.repository';
 import type { Room } from './types/rooms.types';
+import { PresenceService } from '../../redis/presence.service';
 
 @Injectable()
 export class RoomsService {
+  private readonly logger = new Logger(RoomsService.name);
   constructor(
     private readonly roomsRepository: RoomsRepository,
     private readonly usersService: UsersService,
+    private readonly presence: PresenceService,
   ) {}
   listMyRooms(user: User): Promise<Room[]> {
     return user.role === 'ADMIN'
@@ -21,17 +24,27 @@ export class RoomsService {
     return this.roomsRepository.listOpenByType('PRODUCT');
   }
   async startDirectRoom(customer: User): Promise<Room> {
-    const agent = await this.pickLeastBusyAgent();
-    return this.roomsRepository.createWithMembers(
-      {
-        type: 'DIRECT',
-        name: `${customer.displayName} – ${agent.displayName}`,
-        createdBy: customer.id,
+    const agents = await this.usersService.listActiveAgents();
+    if (agents.length === 0) {
+      throw new DomainException(ROOM_ERRORS.ROOM_NO_AGENT_AVAILABLE);
+    }
+    const candidates = await this.preferOnline(agents);
+    return this.roomsRepository.createAssigned(
+      candidates.map((agent) => agent.id),
+      (load) => {
+        const agent = this.leastBusy(candidates, load);
+        return {
+          room: {
+            type: 'DIRECT',
+            name: `${customer.displayName} – ${agent.displayName}`,
+            createdBy: customer.id,
+          },
+          members: [
+            { userId: customer.id, memberRole: 'CUSTOMER' },
+            { userId: agent.id, memberRole: 'AGENT' },
+          ],
+        };
       },
-      [
-        { userId: customer.id, memberRole: 'CUSTOMER' },
-        { userId: agent.id, memberRole: 'AGENT' },
-      ],
     );
   }
   async joinProductRoom(roomId: string, customer: User): Promise<Room> {
@@ -78,20 +91,23 @@ export class RoomsService {
     }
     return room;
   }
-  //Aktif temsilcilerin açık oda sayısına bakar ve en az olanı seçer. Hiç temsilci yoksa ROOM_NO_AGENT_AVAILABLE fırlatır.
-  private async pickLeastBusyAgent(): Promise<User> {
-    const [firstAgent, ...otherAgents] = await this.usersService.listActiveAgents();
-    if (!firstAgent) {
+
+  private async preferOnline(agents: User[]): Promise<User[]> {
+    try {
+      const online = await this.presence.onlineAmong(agents.map((agent) => agent.id));
+      const onlineAgents = agents.filter((agent) => online.has(agent.id));
+      return onlineAgents.length > 0 ? onlineAgents : agents;
+    } catch (error) {
+      this.logger.warn(`Presence unavailable, using all agents: ${String(error)}`);
+      return agents;
+    }
+  }
+
+  private leastBusy([first, ...others]: User[], load: Map<string, number>): User {
+    if (!first) {
       throw new DomainException(ROOM_ERRORS.ROOM_NO_AGENT_AVAILABLE);
     }
-    const load = await this.roomsRepository.countActiveRoomsPerUser([
-      firstAgent.id,
-      ...otherAgents.map((agent) => agent.id),
-    ]);
     const roomsOf = (agent: User): number => load.get(agent.id) ?? 0;
-    return otherAgents.reduce(
-      (best, agent) => (roomsOf(agent) < roomsOf(best) ? agent : best),
-      firstAgent,
-    );
+    return others.reduce((best, agent) => (roomsOf(agent) < roomsOf(best) ? agent : best), first);
   }
 }

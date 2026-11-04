@@ -1,5 +1,5 @@
 //WebSocket’in kapısı. Hatların açıldığı, mesajların geldiği ve dağıtıldığı yer.
-import { Logger, UseFilters, UsePipes, ValidationPipe } from '@nestjs/common';
+import { Logger, UseFilters, UsePipes, ValidationPipe, OnModuleDestroy } from '@nestjs/common';
 import {
   ConnectedSocket,
   MessageBody,
@@ -26,6 +26,9 @@ import { SendMessageDto } from './dto/send-message.dto';
 import { MessagesService } from './messages.service';
 import { ChatNotifierService } from './chat-notifier.service';
 import { DomainException } from '../../common/errors/domain.exception';
+import { PresenceService } from '../../redis/presence.service';
+
+const PRESENCE_HEARTBEAT_MS = 20_000;
 
 @UsePipes(
   new ValidationPipe({
@@ -40,11 +43,14 @@ import { DomainException } from '../../common/errors/domain.exception';
   namespace: '/chat',
   cors: { origin: ['http://localhost:3000'], credentials: true },
 })
-export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect {
+export class ChatGateway
+  implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect, OnModuleDestroy
+{
   @WebSocketServer()
   private readonly server!: Namespace;
 
   private readonly logger = new Logger(ChatGateway.name);
+  private heartbeat: NodeJS.Timeout | null = null;
 
   constructor(
     private readonly wsTicketService: WsTicketService,
@@ -52,6 +58,7 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
     private readonly roomsService: RoomsService,
     private readonly messagesService: MessagesService,
     private readonly chatNotifier: ChatNotifierService,
+    private readonly presence: PresenceService,
   ) {}
   // “kontrol etmeden açma” mantığı burada
   afterInit(server: Namespace): void {
@@ -67,14 +74,36 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
         next(new Error('AUTH_TOKEN_INVALID'));
       }
     });
+    this.heartbeat = setInterval(() => void this.refreshPresence(), PRESENCE_HEARTBEAT_MS);
   }
 
-  handleConnection(client: Socket): void {
-    this.logger.log(`Socket connected: user=${this.userOf(client).id} socket=${client.id}`);
+  async handleConnection(client: Socket): Promise<void> {
+    const user = this.userOf(client);
+    this.logger.log(`Socket connected: user=${user.id} socket=${client.id}`);
+    await this.presence
+      .connect(user.id, client.id)
+      .catch((error: unknown) => this.logger.warn(`Presence connect failed: ${String(error)}`));
   }
 
-  handleDisconnect(client: Socket): void {
-    this.logger.log(`Socket disconnected: socket=${client.id}`);
+  async handleDisconnect(client: Socket): Promise<void> {
+    const user = this.userOf(client);
+    this.logger.log(`Socket disconnected: user=${user.id} socket=${client.id}`);
+    await this.presence
+      .disconnect(user.id, client.id)
+      .catch((error: unknown) => this.logger.warn(`Presence disconnect failed: ${String(error)}`));
+  }
+
+  onModuleDestroy(): void {
+    if (this.heartbeat) {
+      clearInterval(this.heartbeat);
+    }
+  }
+
+  private async refreshPresence(): Promise<void> {
+    const userIds = [...this.server.sockets.values()].map((socket) => this.userOf(socket).id);
+    await this.presence
+      .refresh(userIds)
+      .catch((error: unknown) => this.logger.warn(`Presence refresh failed: ${String(error)}`));
   }
 
   @SubscribeMessage(CHAT_EVENTS.JOIN_ROOM)

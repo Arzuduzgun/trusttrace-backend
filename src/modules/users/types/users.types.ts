@@ -37,3 +37,5 @@ export interface UserListFilter {
   status?: UserStatus;
   limit: number;
 }
+
+export type UserWithPresence = User & { isOnline: boolean };

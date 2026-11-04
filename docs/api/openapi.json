@@ -76,7 +76,7 @@
                     "success": { "type": "boolean", "enum": [true] },
                     "data": {
                       "type": "array",
-                      "items": { "$ref": "#/components/schemas/UserResponseDto" }
+                      "items": { "$ref": "#/components/schemas/AdminUserResponseDto" }
                     }
                   }
                 }
@@ -720,6 +720,19 @@
           "suspendedUntil": { "format": "date-time", "type": "string", "nullable": true }
         },
         "required": ["role", "status", "id", "email", "displayName", "suspendedUntil"]
+      },
+      "AdminUserResponseDto": {
+        "type": "object",
+        "properties": {
+          "role": { "allOf": [{ "$ref": "#/components/schemas/UserRole" }] },
+          "status": { "allOf": [{ "$ref": "#/components/schemas/UserStatus" }] },
+          "id": { "type": "string" },
+          "email": { "type": "string" },
+          "displayName": { "type": "string" },
+          "suspendedUntil": { "format": "date-time", "type": "string", "nullable": true },
+          "isOnline": { "type": "boolean" }
+        },
+        "required": ["role", "status", "id", "email", "displayName", "suspendedUntil", "isOnline"]
       },
       "ModerationEventType": {
         "type": "string",

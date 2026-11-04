@@ -1,8 +1,8 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { and, count, desc, eq, inArray, ne } from 'drizzle-orm';
+import { and, count, desc, eq, inArray, ne, sql } from 'drizzle-orm';
 import { DomainException } from '../../common/errors/domain.exception';
 import { DRIZZLE } from '../../database/database.tokens';
-import type { Database } from '../../database/database.types';
+import type { Database, DbExecutor } from '../../database/database.types';
 import { isUniqueViolation } from '../../database/postgres-errors';
 import { roomMembers, rooms } from '../../database/schema';
 import { ROOM_ERRORS } from './rooms.errors';
@@ -26,18 +26,36 @@ export class RoomsRepository {
   }
   //Odayı ve üyelerini tek transaction’da oluşturur.
   async createWithMembers(newRoom: NewRoom, members: NewRoomMember[]): Promise<Room> {
+    return this.db.transaction((tx) => this.insertRoomWithMembers(tx, newRoom, members));
+  }
+
+  async createAssigned(
+    candidateIds: string[],
+    build: (load: Map<string, number>) => { room: NewRoom; members: NewRoomMember[] },
+  ): Promise<Room> {
     return this.db.transaction(async (tx) => {
-      const [room] = await tx.insert(rooms).values(newRoom).returning(ROOM_COLUMNS);
-      if (!room) {
-        throw new Error('Room insert returned no row');
-      }
-      if (members.length > 0) {
-        await tx
-          .insert(roomMembers)
-          .values(members.map((member) => ({ ...member, roomId: room.id })));
-      }
-      return room;
+      await tx.execute(sql`SELECT pg_advisory_xact_lock(hashtext('agent-assignment'))`);
+      const load = await this.countActiveRoomsPerUser(candidateIds, tx);
+      const { room, members } = build(load);
+      return this.insertRoomWithMembers(tx, room, members);
     });
+  }
+
+  private async insertRoomWithMembers(
+    executor: DbExecutor,
+    newRoom: NewRoom,
+    members: NewRoomMember[],
+  ): Promise<Room> {
+    const [room] = await executor.insert(rooms).values(newRoom).returning(ROOM_COLUMNS);
+    if (!room) {
+      throw new Error('Room insert returned no row');
+    }
+    if (members.length > 0) {
+      await executor
+        .insert(roomMembers)
+        .values(members.map((member) => ({ ...member, roomId: room.id })));
+    }
+    return room;
   }
   async addMember(roomId: string, member: NewRoomMember): Promise<void> {
     try {
@@ -76,8 +94,11 @@ export class RoomsRepository {
       .orderBy(desc(rooms.createdAt));
   }
   //Verilen her temsilcinin şu anda kaç açık odası var. “En az meşgul temsilci” seçimi bunu kullanır.
-  async countActiveRoomsPerUser(userIds: string[]): Promise<Map<string, number>> {
-    const rows = await this.db
+  async countActiveRoomsPerUser(
+    userIds: string[],
+    executor: DbExecutor = this.db,
+  ): Promise<Map<string, number>> {
+    const rows = await executor
       .select({ userId: roomMembers.userId, total: count() })
       .from(roomMembers)
       .innerJoin(rooms, eq(rooms.id, roomMembers.roomId))
