@@ -14,6 +14,7 @@ import { ScanResult, ScanVerdict } from '../moderation/types/moderation.types';
 import { ContentScannerService } from '../moderation/content-scanner.service';
 import { NewModerationEvent } from '../moderation-events/types/moderation-events.types';
 import { canSendMessages } from '../users/user-status';
+import { PinoLogger } from 'nestjs-pino';
 
 const STATUS_BY_VERDICT: Record<ScanVerdict, MessageStatus> = {
   CLEAN: 'DELIVERED',
@@ -21,14 +22,19 @@ const STATUS_BY_VERDICT: Record<ScanVerdict, MessageStatus> = {
   BLOCK: 'BLOCKED',
 };
 
+const PROCESSABLE_STATUSES: ReadonlySet<MessageStatus> = new Set(['PENDING', 'FAILED']);
+
 @Injectable()
 export class MessagesService {
   constructor(
+    private readonly logger: PinoLogger,
     private readonly messagesRepository: MessagesRepository,
     private readonly roomsService: RoomsService,
     private readonly usersService: UsersService,
     private readonly contentScanner: ContentScannerService,
-  ) {}
+  ) {
+    this.logger.setContext(MessagesService.name);
+  }
 
   async listHistory(
     roomId: string,
@@ -71,18 +77,32 @@ export class MessagesService {
     if (room.status === 'CLOSED') {
       throw new DomainException(CHAT_ERRORS.CHAT_ROOM_CLOSED);
     }
-    const scan = await this.contentScanner.scan(body);
-    const message = await this.messagesRepository.insertOnce(
-      {
-        roomId,
-        senderId: currentSender.id,
-        body: body.trim(),
-        clientMessageId,
-        status: STATUS_BY_VERDICT[scan.verdict],
-      },
-      scan.verdict === 'CLEAN' ? undefined : (saved) => this.toViolationEvent(saved, scan),
-    );
-    return MessageResponseDto.from(message, currentSender.displayName);
+    const message = await this.messagesRepository.insertOnce({
+      roomId,
+      senderId: currentSender.id,
+      body: body.trim(),
+      clientMessageId,
+      status: 'PENDING',
+    });
+    const finalMessage = PROCESSABLE_STATUSES.has(message.status)
+      ? await this.process(message)
+      : message;
+    return MessageResponseDto.from(finalMessage, currentSender.displayName);
+  }
+
+  private async process(message: Message): Promise<Message> {
+    try {
+      const scan = await this.contentScanner.scan(message.body);
+      return await this.messagesRepository.finalize(
+        message.id,
+        STATUS_BY_VERDICT[scan.verdict],
+        scan.verdict === 'CLEAN' ? undefined : (saved) => this.toViolationEvent(saved, scan),
+      );
+    } catch (error) {
+      this.logger.error({ err: error, messageId: message.id }, 'Message processing failed');
+      await this.messagesRepository.markFailed(message.id).catch(() => undefined);
+      throw new DomainException(CHAT_ERRORS.CHAT_MESSAGE_FAILED);
+    }
   }
 
   private toViolationEvent(saved: Message, scan: ScanResult): NewModerationEvent {

@@ -25,6 +25,7 @@ import { MessageResponseDto } from './dto/message-response.dto';
 import { SendMessageDto } from './dto/send-message.dto';
 import { MessagesService } from './messages.service';
 import { ChatNotifierService } from './chat-notifier.service';
+import { DomainException } from '../../common/errors/domain.exception';
 
 @UsePipes(
   new ValidationPipe({
@@ -100,16 +101,26 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
     @ConnectedSocket() client: Socket,
     @MessageBody() dto: SendMessageDto,
   ): Promise<WsSuccess<MessageResponseDto>> {
-    const message = await this.messagesService.send(
-      dto.roomId,
-      this.userOf(client),
-      dto.body,
-      dto.clientMessageId,
-    );
-    if (message.status !== 'BLOCKED') {
-      this.server.to(roomChannel(dto.roomId)).emit(CHAT_EVENTS.NEW_MESSAGE, message);
+    const sender = this.userOf(client);
+    try {
+      const message = await this.messagesService.send(
+        dto.roomId,
+        sender,
+        dto.body,
+        dto.clientMessageId,
+      );
+      if (message.status === 'DELIVERED' || message.status === 'FLAGGED') {
+        this.server.to(roomChannel(dto.roomId)).emit(CHAT_EVENTS.NEW_MESSAGE, message);
+      }
+      return { ok: true, data: message };
+    } catch (error) {
+      this.server.to(userChannel(sender.id)).emit(CHAT_EVENTS.MESSAGE_FAILED, {
+        roomId: dto.roomId,
+        clientMessageId: dto.clientMessageId,
+        reason: error instanceof DomainException ? error.message : 'Mesaj gönderilemedi.',
+      });
+      throw error;
     }
-    return { ok: true, data: message };
   }
 
   private async authenticate(socket: Socket): Promise<void> {

@@ -2,7 +2,13 @@ import { index, pgEnum, pgTable, text, timestamp, unique, uuid } from 'drizzle-o
 import { rooms } from './rooms.schema';
 import { users } from './users.schema';
 
-export const messageStatusEnum = pgEnum('message_status', ['DELIVERED', 'FLAGGED', 'BLOCKED']);
+export const messageStatusEnum = pgEnum('message_status', [
+  'PENDING',
+  'DELIVERED',
+  'FLAGGED',
+  'BLOCKED',
+  'FAILED',
+]);
 
 export const messages = pgTable(
   'messages',
@@ -19,7 +25,7 @@ export const messages = pgTable(
     /*Mesajı gönderen tarayıcının ürettiği id. İnternet kopup tarayıcı aynı mesajı tekrar gönderirse, 
     unique(senderId, clientMessageId) kuralı sayesinde ikinci kayıt oluşmaz. 
     Mesaj iki kez görünmez*/
-    status: messageStatusEnum('status').notNull().default('DELIVERED'),
+    status: messageStatusEnum('status').notNull().default('PENDING'),
     createdAt: timestamp('created_at', { withTimezone: true, precision: 3 }).notNull().defaultNow(),
   },
   (table) => [

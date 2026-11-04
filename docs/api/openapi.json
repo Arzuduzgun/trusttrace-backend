@@ -835,7 +835,10 @@
         "properties": { "userId": { "type": "string", "format": "uuid" } },
         "required": ["userId"]
       },
-      "MessageStatus": { "type": "string", "enum": ["DELIVERED", "FLAGGED", "BLOCKED"] },
+      "MessageStatus": {
+        "type": "string",
+        "enum": ["PENDING", "DELIVERED", "FLAGGED", "BLOCKED", "FAILED"]
+      },
       "MessageResponseDto": {
         "type": "object",
         "properties": {

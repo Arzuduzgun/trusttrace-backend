@@ -12,4 +12,9 @@ export const CHAT_ERRORS = {
     status: HttpStatus.FORBIDDEN,
     message: 'Hesabınız askıya alındı, mesaj gönderemezsiniz.',
   },
+  CHAT_MESSAGE_FAILED: {
+    code: 'CHAT_MESSAGE_FAILED',
+    status: HttpStatus.INTERNAL_SERVER_ERROR,
+    message: 'Mesaj işlenemedi, lütfen tekrar deneyin.',
+  },
 } as const satisfies ErrorCatalog;
