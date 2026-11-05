@@ -26,3 +26,21 @@ export interface ModerationEventFilter {
   roomId?: string;
   limit: number;
 }
+
+export type HashableEvent = Omit<ModerationEvent, 'seq'>;
+
+export interface ChainedModerationEvent extends ModerationEvent {
+  prevHash: string;
+  hash: string;
+}
+
+export type ChainBreakReason = 'PREV_HASH_MISMATCH' | 'CONTENT_HASH_MISMATCH';
+
+export interface ChainVerification {
+  valid: boolean;
+  checkedCount: number;
+  brokenAtSeq: number | null;
+  reason: ChainBreakReason | null;
+  headHash: string | null;
+  verifiedAt: Date;
+}

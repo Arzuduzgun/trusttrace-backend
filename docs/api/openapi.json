@@ -141,6 +141,31 @@
         "tags": ["Admin – Moderation events"]
       }
     },
+    "/api/v1/admin/moderation-events/verify": {
+      "get": {
+        "operationId": "AdminModerationEventsController_verify",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["success", "data"],
+                  "properties": {
+                    "success": { "type": "boolean", "enum": [true] },
+                    "data": { "$ref": "#/components/schemas/ChainVerificationDto" }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [{ "bearer": [] }],
+        "tags": ["Admin – Moderation events"]
+      }
+    },
     "/api/v1/auth/register": {
       "post": {
         "operationId": "AuthController_register",
@@ -955,7 +980,9 @@
           "roomId": { "type": "string", "nullable": true },
           "messageId": { "type": "string", "nullable": true },
           "refersToEventId": { "type": "string", "nullable": true },
-          "occurredAt": { "format": "date-time", "type": "string" }
+          "occurredAt": { "format": "date-time", "type": "string" },
+          "prevHash": { "type": "string" },
+          "hash": { "type": "string" }
         },
         "required": [
           "eventType",
@@ -968,8 +995,29 @@
           "roomId",
           "messageId",
           "refersToEventId",
-          "occurredAt"
+          "occurredAt",
+          "prevHash",
+          "hash"
         ]
+      },
+      "ChainBreakReason": {
+        "type": "string",
+        "enum": ["PREV_HASH_MISMATCH", "CONTENT_HASH_MISMATCH"]
+      },
+      "ChainVerificationDto": {
+        "type": "object",
+        "properties": {
+          "brokenAtSeq": { "type": "number", "nullable": true },
+          "reason": {
+            "nullable": true,
+            "allOf": [{ "$ref": "#/components/schemas/ChainBreakReason" }]
+          },
+          "headHash": { "type": "string", "nullable": true },
+          "valid": { "type": "boolean" },
+          "checkedCount": { "type": "number" },
+          "verifiedAt": { "format": "date-time", "type": "string" }
+        },
+        "required": ["brokenAtSeq", "reason", "headHash", "valid", "checkedCount", "verifiedAt"]
       },
       "AuthResponseDto": {
         "type": "object",

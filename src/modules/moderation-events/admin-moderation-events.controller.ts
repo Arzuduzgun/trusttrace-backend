@@ -5,6 +5,7 @@ import { Roles } from '../../common/decorators/roles.decorator';
 import { ModerationEventQueryDto } from './dto/moderation-event-query.dto';
 import { ModerationEventResponseDto } from './dto/moderation-event-response.dto';
 import { ModerationEventsService } from './moderation-events.service';
+import { ChainVerificationDto } from './dto/chain-verification.dto';
 
 @ApiTags('Admin – Moderation events')
 @ApiBearerAuth()
@@ -18,5 +19,11 @@ export class AdminModerationEventsController {
   async list(@Query() query: ModerationEventQueryDto): Promise<ModerationEventResponseDto[]> {
     const events = await this.eventsService.list(query);
     return events.map((event) => ModerationEventResponseDto.from(event));
+  }
+
+  @Get('verify')
+  @ApiEnvelope(ChainVerificationDto)
+  async verify(): Promise<ChainVerificationDto> {
+    return ChainVerificationDto.from(await this.eventsService.verifyChain());
   }
 }

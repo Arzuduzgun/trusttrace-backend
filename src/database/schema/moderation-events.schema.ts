@@ -41,6 +41,8 @@ export const moderationEvents = pgTable(
     refersToEventId: uuid('refers_to_event_id'),
     payload: jsonb('payload').$type<Record<string, unknown>>().notNull(),
     traceId: varchar('trace_id', { length: 64 }),
+    prevHash: varchar('prev_hash', { length: 64 }).notNull(),
+    hash: varchar('hash', { length: 64 }).notNull().unique(),
     occurredAt: timestamp('occurred_at', { withTimezone: true, precision: 3 })
       .notNull()
       .defaultNow(),

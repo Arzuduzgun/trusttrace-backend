@@ -1,13 +1,16 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { and, desc, eq } from 'drizzle-orm';
+import { and, desc, eq, sql, asc, gt } from 'drizzle-orm';
 import { DRIZZLE } from '../../database/database.tokens';
 import type { Database, DbExecutor } from '../../database/database.types';
 import { moderationEvents } from '../../database/schema';
 import type {
+  ChainedModerationEvent,
   ModerationEvent,
   ModerationEventFilter,
   NewModerationEvent,
 } from './types/moderation-events.types';
+import { GENESIS_HASH, hashEvent } from './ledger-hash';
+import { randomUUID } from 'crypto';
 
 const EVENT_COLUMNS = {
   seq: moderationEvents.seq,
@@ -22,6 +25,8 @@ const EVENT_COLUMNS = {
   payload: moderationEvents.payload,
   traceId: moderationEvents.traceId,
   occurredAt: moderationEvents.occurredAt,
+  prevHash: moderationEvents.prevHash,
+  hash: moderationEvents.hash,
 };
 
 @Injectable()
@@ -29,10 +34,28 @@ export class ModerationEventsRepository {
   constructor(@Inject(DRIZZLE) private readonly db: Database) {}
 
   async append(event: NewModerationEvent, executor: DbExecutor = this.db): Promise<void> {
-    await executor.insert(moderationEvents).values(event);
+    if (executor === this.db) {
+      await this.db.transaction((tx) => this.appendChained(event, tx));
+      return;
+    }
+    await this.appendChained(event, executor);
   }
 
-  list(filter: ModerationEventFilter): Promise<ModerationEvent[]> {
+  private async appendChained(event: NewModerationEvent, tx: DbExecutor): Promise<void> {
+    await tx.execute(sql`SELECT pg_advisory_xact_lock(hashtext('moderation-events-chain'))`);
+    const [last] = await tx
+      .select({ hash: moderationEvents.hash })
+      .from(moderationEvents)
+      .orderBy(desc(moderationEvents.seq))
+      .limit(1);
+    const prevHash = last?.hash ?? GENESIS_HASH;
+    const record = { ...event, id: randomUUID(), occurredAt: new Date() };
+    await tx
+      .insert(moderationEvents)
+      .values({ ...record, prevHash, hash: hashEvent(record, prevHash) });
+  }
+
+  list(filter: ModerationEventFilter): Promise<ChainedModerationEvent[]> {
     return this.db
       .select(EVENT_COLUMNS)
       .from(moderationEvents)
@@ -74,5 +97,14 @@ export class ModerationEventsRepository {
       .orderBy(desc(moderationEvents.seq))
       .limit(1);
     return row ?? null;
+  }
+
+  listChainPage(afterSeq: number, limit: number): Promise<ChainedModerationEvent[]> {
+    return this.db
+      .select(EVENT_COLUMNS)
+      .from(moderationEvents)
+      .where(gt(moderationEvents.seq, afterSeq))
+      .orderBy(asc(moderationEvents.seq))
+      .limit(limit);
   }
 }

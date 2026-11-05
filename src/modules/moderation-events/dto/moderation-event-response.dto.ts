@@ -1,8 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { moderationActorTypeEnum, moderationEventTypeEnum } from '../../../database/schema';
 import type {
+  ChainedModerationEvent,
   ModerationActorType,
-  ModerationEvent,
   ModerationEventType,
 } from '../types/moderation-events.types';
 
@@ -21,8 +21,10 @@ export class ModerationEventResponseDto {
   @ApiProperty({ type: 'object', additionalProperties: true })
   payload!: Record<string, unknown>;
   occurredAt!: Date;
+  prevHash!: string;
+  hash!: string;
 
-  static from(event: ModerationEvent): ModerationEventResponseDto {
+  static from(event: ChainedModerationEvent): ModerationEventResponseDto {
     return {
       seq: event.seq,
       id: event.id,
@@ -35,6 +37,8 @@ export class ModerationEventResponseDto {
       refersToEventId: event.refersToEventId,
       payload: event.payload,
       occurredAt: event.occurredAt,
+      prevHash: event.prevHash,
+      hash: event.hash,
     };
   }
 }
