@@ -48,6 +48,10 @@ export class UsersService {
     return this.usersRepository.listActiveByRole('AGENT');
   }
 
+  listActiveAdmins(): Promise<User[]> {
+    return this.usersRepository.listActiveByRole('ADMIN');
+  }
+
   findDisplayNames(ids: string[]): Promise<Map<string, string>> {
     return this.usersRepository.findDisplayNames(ids);
   }

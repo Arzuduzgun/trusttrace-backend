@@ -22,4 +22,9 @@ export const CHAT_ERRORS = {
     status: HttpStatus.TOO_MANY_REQUESTS,
     message: 'Çok hızlı mesaj gönderiyorsunuz. Birkaç saniye bekleyip tekrar deneyin.',
   },
+  CHAT_ADMIN_READ_ONLY: {
+    code: 'CHAT_ADMIN_READ_ONLY',
+    status: HttpStatus.FORBIDDEN,
+    message: 'Yönetici görünümü salt okunurdur; mesaj gönderilemez.',
+  },
 } as const satisfies ErrorCatalog;

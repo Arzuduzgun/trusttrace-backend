@@ -75,6 +75,9 @@ export class MessagesService {
     clientMessageId: string,
   ): Promise<MessageResponseDto> {
     const currentSender = await this.usersService.getById(sender.id);
+    if (currentSender.role === 'ADMIN') {
+      throw new DomainException(CHAT_ERRORS.CHAT_ADMIN_READ_ONLY);
+    }
     if (!canSendMessages(currentSender)) {
       throw new DomainException(CHAT_ERRORS.CHAT_SENDER_SUSPENDED);
     }

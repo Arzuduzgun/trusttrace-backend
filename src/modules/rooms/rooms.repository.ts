@@ -12,6 +12,7 @@ import type {
   NewRoomMember,
   Room,
   RoomMemberDetail,
+  RoomStatus,
   RoomType,
 } from './types/rooms.types';
 
@@ -135,5 +136,18 @@ export class RoomsRepository {
       .where(and(eq(roomMembers.roomId, roomId), eq(roomMembers.userId, userId)))
       .returning({ lastReadAt: roomMembers.lastReadAt });
     return row?.lastReadAt ?? null;
+  }
+
+  async updateStatus(
+    roomId: string,
+    status: RoomStatus,
+    onlyFrom?: RoomStatus,
+  ): Promise<Room | null> {
+    const [row] = await this.db
+      .update(rooms)
+      .set({ status })
+      .where(and(eq(rooms.id, roomId), onlyFrom ? eq(rooms.status, onlyFrom) : undefined))
+      .returning(ROOM_COLUMNS);
+    return row ?? null;
   }
 }

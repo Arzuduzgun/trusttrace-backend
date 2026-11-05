@@ -49,4 +49,29 @@ export class NotificationsService {
   markAllRead(userId: string): Promise<void> {
     return this.notificationsRepository.markAllRead(userId);
   }
+
+  async notifyRoomEscalated(
+    adminIds: string[],
+    room: { id: string; name: string },
+    agentName: string,
+    note: string | null,
+  ): Promise<void> {
+    for (const adminId of adminIds) {
+      try {
+        const notification = await this.notificationsRepository.create({
+          userId: adminId,
+          type: 'ROOM_ESCALATED',
+          roomId: room.id,
+          payload: { roomName: room.name, agentName, note },
+        });
+        this.chatNotifier.notifyUser(
+          adminId,
+          CHAT_EVENTS.NOTIFICATION_NEW,
+          NotificationResponseDto.from(notification),
+        );
+      } catch (error) {
+        this.logger.warn(`Escalation notification failed: ${String(error)}`);
+      }
+    }
+  }
 }

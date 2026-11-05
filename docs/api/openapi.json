@@ -439,6 +439,39 @@
         "tags": ["Rooms"]
       }
     },
+    "/api/v1/rooms/{id}/escalate": {
+      "post": {
+        "operationId": "RoomsController_escalate",
+        "parameters": [
+          { "name": "id", "required": true, "in": "path", "schema": { "type": "string" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": { "schema": { "$ref": "#/components/schemas/EscalateRoomDto" } }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["success", "data"],
+                  "properties": {
+                    "success": { "type": "boolean", "enum": [true] },
+                    "data": { "$ref": "#/components/schemas/RoomResponseDto" }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [{ "bearer": [] }],
+        "tags": ["Rooms"]
+      }
+    },
     "/api/v1/admin/rooms": {
       "post": {
         "operationId": "AdminRoomsController_create",
@@ -483,6 +516,39 @@
           }
         },
         "responses": { "204": { "description": "" } },
+        "security": [{ "bearer": [] }],
+        "tags": ["Admin – Rooms"]
+      }
+    },
+    "/api/v1/admin/rooms/{id}/status": {
+      "post": {
+        "operationId": "AdminRoomsController_setStatus",
+        "parameters": [
+          { "name": "id", "required": true, "in": "path", "schema": { "type": "string" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": { "schema": { "$ref": "#/components/schemas/UpdateRoomStatusDto" } }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["success", "data"],
+                  "properties": {
+                    "success": { "type": "boolean", "enum": [true] },
+                    "data": { "$ref": "#/components/schemas/RoomResponseDto" }
+                  }
+                }
+              }
+            }
+          }
+        },
         "security": [{ "bearer": [] }],
         "tags": ["Admin – Rooms"]
       }
@@ -992,6 +1058,10 @@
         },
         "required": ["memberRole", "lastReadAt", "userId", "displayName", "isOnline"]
       },
+      "EscalateRoomDto": {
+        "type": "object",
+        "properties": { "note": { "type": "string", "maxLength": 500 } }
+      },
       "CreateRoomDto": {
         "type": "object",
         "properties": { "name": { "type": "string", "minLength": 2, "maxLength": 120 } },
@@ -1002,7 +1072,12 @@
         "properties": { "userId": { "type": "string", "format": "uuid" } },
         "required": ["userId"]
       },
-      "NotificationType": { "type": "string", "enum": ["ROOM_ASSIGNED"] },
+      "UpdateRoomStatusDto": {
+        "type": "object",
+        "properties": { "status": { "allOf": [{ "$ref": "#/components/schemas/RoomStatus" }] } },
+        "required": ["status"]
+      },
+      "NotificationType": { "type": "string", "enum": ["ROOM_ASSIGNED", "ROOM_ESCALATED"] },
       "NotificationResponseDto": {
         "type": "object",
         "properties": {

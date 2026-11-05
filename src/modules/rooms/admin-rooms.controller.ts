@@ -8,13 +8,18 @@ import { AddMemberDto } from './dto/add-member.dto';
 import { CreateRoomDto } from './dto/create-room.dto';
 import { RoomResponseDto } from './dto/room-response.dto';
 import { RoomsService } from './rooms.service';
+import { RoomStatusService } from './room-status.service';
+import { UpdateRoomStatusDto } from './dto/update-room-status.dto';
 
 @ApiTags('Admin – Rooms')
 @ApiBearerAuth()
 @Roles('ADMIN')
 @Controller('admin/rooms')
 export class AdminRoomsController {
-  constructor(private readonly roomsService: RoomsService) {}
+  constructor(
+    private readonly roomsService: RoomsService,
+    private readonly roomStatusService: RoomStatusService,
+  ) {}
 
   @Post()
   @ApiEnvelope(RoomResponseDto, { status: 201 })
@@ -27,5 +32,15 @@ export class AdminRoomsController {
   @ApiResponse({ status: 204 })
   addMember(@Param('id', ParseUUIDPipe) roomId: string, @Body() dto: AddMemberDto): Promise<void> {
     return this.roomsService.addMember(roomId, dto.userId);
+  }
+
+  @Post(':id/status')
+  @HttpCode(HttpStatus.OK)
+  @ApiEnvelope(RoomResponseDto)
+  async setStatus(
+    @Param('id', ParseUUIDPipe) roomId: string,
+    @Body() dto: UpdateRoomStatusDto,
+  ): Promise<RoomResponseDto> {
+    return RoomResponseDto.from(await this.roomStatusService.setStatus(roomId, dto.status));
   }
 }

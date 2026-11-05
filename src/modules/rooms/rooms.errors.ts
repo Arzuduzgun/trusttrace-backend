@@ -27,4 +27,9 @@ export const ROOM_ERRORS = {
     status: HttpStatus.SERVICE_UNAVAILABLE,
     message: 'Şu anda müsait temsilci yok, lütfen biraz sonra tekrar deneyin.',
   },
+  ROOM_NOT_ESCALATABLE: {
+    code: 'ROOM_NOT_ESCALATABLE',
+    status: HttpStatus.CONFLICT,
+    message: 'Sadece açık bir görüşme yöneticiye iletilebilir.',
+  },
 } as const satisfies ErrorCatalog;

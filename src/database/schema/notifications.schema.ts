@@ -2,7 +2,10 @@ import { index, jsonb, pgEnum, pgTable, timestamp, uuid } from 'drizzle-orm/pg-c
 import { rooms } from './rooms.schema';
 import { users } from './users.schema';
 
-export const notificationTypeEnum = pgEnum('notification_type', ['ROOM_ASSIGNED']);
+export const notificationTypeEnum = pgEnum('notification_type', [
+  'ROOM_ASSIGNED',
+  'ROOM_ESCALATED',
+]);
 
 export const notifications = pgTable(
   'notifications',
