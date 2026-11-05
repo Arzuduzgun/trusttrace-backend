@@ -772,6 +772,65 @@
         "security": [{ "bearer": [] }],
         "tags": ["Admin – Sanctions"]
       }
+    },
+    "/api/v1/products": {
+      "get": {
+        "operationId": "ProductsController_list",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["success", "data"],
+                  "properties": {
+                    "success": { "type": "boolean", "enum": [true] },
+                    "data": {
+                      "type": "array",
+                      "items": { "$ref": "#/components/schemas/ProductResponseDto" }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [{ "bearer": [] }],
+        "tags": ["Products"]
+      }
+    },
+    "/api/v1/admin/products": {
+      "post": {
+        "operationId": "AdminProductsController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": { "schema": { "$ref": "#/components/schemas/CreateProductDto" } }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["success", "data"],
+                  "properties": {
+                    "success": { "type": "boolean", "enum": [true] },
+                    "data": { "$ref": "#/components/schemas/ProductResponseDto" }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [{ "bearer": [] }],
+        "tags": ["Admin – Products"]
+      }
     }
   },
   "info": {
@@ -911,9 +970,10 @@
           "status": { "allOf": [{ "$ref": "#/components/schemas/RoomStatus" }] },
           "id": { "type": "string" },
           "name": { "type": "string" },
-          "createdAt": { "format": "date-time", "type": "string" }
+          "createdAt": { "format": "date-time", "type": "string" },
+          "productId": { "type": "string", "nullable": true }
         },
-        "required": ["type", "status", "id", "name", "createdAt"]
+        "required": ["type", "status", "id", "name", "createdAt", "productId"]
       },
       "MemberRole": { "type": "string", "enum": ["CUSTOMER", "AGENT"] },
       "RoomMemberResponseDto": {
@@ -1058,6 +1118,42 @@
           }
         },
         "required": ["reasonCode"]
+      },
+      "ProductResponseDto": {
+        "type": "object",
+        "properties": {
+          "roomStatus": {
+            "nullable": true,
+            "allOf": [{ "$ref": "#/components/schemas/RoomStatus" }]
+          },
+          "id": { "type": "string" },
+          "name": { "type": "string" },
+          "description": { "type": "string" },
+          "imageUrl": { "type": "string" },
+          "priceCents": { "type": "number" },
+          "roomId": { "type": "string", "nullable": true },
+          "createdAt": { "format": "date-time", "type": "string" }
+        },
+        "required": [
+          "roomStatus",
+          "id",
+          "name",
+          "description",
+          "imageUrl",
+          "priceCents",
+          "roomId",
+          "createdAt"
+        ]
+      },
+      "CreateProductDto": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string", "minLength": 2, "maxLength": 100 },
+          "description": { "type": "string", "maxLength": 1000 },
+          "imageUrl": { "type": "string", "maxLength": 500 },
+          "priceCents": { "type": "number", "minimum": 0, "maximum": 100000000 }
+        },
+        "required": ["name", "description", "imageUrl", "priceCents"]
       }
     }
   }

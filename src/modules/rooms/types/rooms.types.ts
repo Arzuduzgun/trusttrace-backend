@@ -10,6 +10,7 @@ export interface Room {
   name: string;
   status: RoomStatus;
   createdAt: Date;
+  productId: string | null;
 }
 
 export interface NewRoom {

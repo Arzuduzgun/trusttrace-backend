@@ -10,6 +10,7 @@ export class RoomResponseDto {
   @ApiProperty({ enum: roomStatusEnum.enumValues, enumName: 'RoomStatus' })
   status!: RoomStatus;
   createdAt!: Date;
+  productId!: string | null;
 
   static from(room: Room): RoomResponseDto {
     return {
@@ -18,6 +19,7 @@ export class RoomResponseDto {
       name: room.name,
       status: room.status,
       createdAt: room.createdAt,
+      productId: room.productId,
     };
   }
 }

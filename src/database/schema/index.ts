@@ -6,3 +6,4 @@ export * from './messages.schema';
 export * from './moderation-rules.schema';
 export * from './moderation-events.schema';
 export * from './notifications.schema';
+export * from './products.schema';

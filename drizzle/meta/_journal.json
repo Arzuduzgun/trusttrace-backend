@@ -78,6 +78,13 @@
       "when": 1793866663515,
       "tag": "0010_long_shadowcat",
       "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1793871724612,
+      "tag": "0011_blushing_karen_page",
+      "breakpoints": true
     }
   ]
 }

@@ -1,5 +1,6 @@
 import { pgEnum, pgTable, timestamp, uuid, varchar } from 'drizzle-orm/pg-core';
 import { users } from './users.schema';
+import { products } from './products.schema';
 
 export const roomTypeEnum = pgEnum('room_type', ['DIRECT', 'PRODUCT']);
 export const roomStatusEnum = pgEnum('room_status', ['OPEN', 'ESCALATED', 'CLOSED']);
@@ -9,6 +10,9 @@ export const rooms = pgTable('rooms', {
   type: roomTypeEnum('type').notNull(),
   name: varchar('name', { length: 120 }).notNull(),
   status: roomStatusEnum('status').notNull().default('OPEN'),
+  productId: uuid('product_id')
+    .unique()
+    .references(() => products.id),
   createdBy: uuid('created_by')
     .notNull()
     .references(() => users.id),

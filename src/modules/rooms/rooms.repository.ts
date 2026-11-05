@@ -21,6 +21,7 @@ const ROOM_COLUMNS = {
   name: rooms.name,
   status: rooms.status,
   createdAt: rooms.createdAt,
+  productId: rooms.productId,
 };
 
 @Injectable()

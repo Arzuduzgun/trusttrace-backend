@@ -4,12 +4,12 @@ import { and, eq } from 'drizzle-orm';
 import { drizzle } from 'drizzle-orm/node-postgres';
 import { Pool } from 'pg';
 import * as schema from '../../src/database/schema';
-import { moderationRules, roomMembers, rooms, users } from '../../src/database/schema';
+import { moderationRules, products, roomMembers, rooms, users } from '../../src/database/schema';
 import { normalizeText, toWords } from '../../src/modules/moderation/text-normalizer';
 import {
   DEMO_PASSWORD,
   SEED_DIRECT_ROOMS,
-  SEED_PRODUCT_ROOMS,
+  SEED_PRODUCTS,
   SEED_RULES,
   SEED_USERS,
 } from './seed-data';
@@ -98,17 +98,69 @@ async function addMembers(
     .onConflictDoNothing();
 }
 
-async function seedRooms(ids: Map<string, string>, adminId: string): Promise<void> {
-  for (const room of SEED_PRODUCT_ROOMS) {
-    const roomId = await findOrCreateRoom('PRODUCT', room.name, adminId);
+async function findOrCreateProduct(
+  product: (typeof SEED_PRODUCTS)[number],
+  createdBy: string,
+): Promise<string> {
+  const [existing] = await db
+    .select({ id: products.id })
+    .from(products)
+    .where(eq(products.name, product.name))
+    .limit(1);
+  if (existing) {
+    return existing.id;
+  }
+  const [created] = await db
+    .insert(products)
+    .values({
+      name: product.name,
+      description: product.description,
+      imageUrl: product.imageUrl,
+      priceCents: product.priceCents,
+      createdBy,
+    })
+    .returning({ id: products.id });
+  if (!created) {
+    throw new Error(`Product could not be created: ${product.name}`);
+  }
+  return created.id;
+}
+
+async function seedProducts(ids: Map<string, string>, adminId: string): Promise<void> {
+  for (const product of SEED_PRODUCTS) {
+    const productId = await findOrCreateProduct(product, adminId);
+    const [existingRoom] = await db
+      .select({ id: rooms.id })
+      .from(rooms)
+      .where(eq(rooms.productId, productId))
+      .limit(1);
+    const roomId =
+      existingRoom?.id ??
+      (
+        await db
+          .insert(rooms)
+          .values({
+            type: 'PRODUCT',
+            name: `${product.name} Destek`,
+            createdBy: adminId,
+            productId,
+          })
+          .returning({ id: rooms.id })
+      )[0]?.id;
+    if (!roomId) {
+      throw new Error(`Product room could not be created: ${product.name}`);
+    }
     await addMembers(roomId, [
-      { userId: idOf(ids, room.agentEmail), memberRole: 'AGENT' },
-      ...room.customerEmails.map((email) => ({
+      { userId: idOf(ids, product.agentEmail), memberRole: 'AGENT' },
+      ...product.customerEmails.map((email) => ({
         userId: idOf(ids, email),
         memberRole: 'CUSTOMER' as const,
       })),
     ]);
   }
+}
+
+async function seedDirectRooms(ids: Map<string, string>): Promise<void> {
   for (const room of SEED_DIRECT_ROOMS) {
     const customerId = idOf(ids, room.customerEmail);
     const roomId = await findOrCreateRoom('DIRECT', room.name, customerId);
@@ -123,7 +175,8 @@ async function main(): Promise<void> {
   const ids = await seedUsers();
   const adminId = idOf(ids, 'admin@trusttrace.dev');
   await seedRules(adminId);
-  await seedRooms(ids, adminId);
+  await seedProducts(ids, adminId);
+  await seedDirectRooms(ids);
   console.log('Seed completed. Demo accounts (password: %s):', DEMO_PASSWORD);
   for (const user of SEED_USERS) {
     console.log(`  ${user.role.padEnd(8)} ${user.email}`);
