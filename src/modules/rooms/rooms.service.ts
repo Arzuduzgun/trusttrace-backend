@@ -4,7 +4,7 @@ import { UsersService } from '../users/users.service';
 import type { User } from '../users/types/users.types';
 import { ROOM_ERRORS } from './rooms.errors';
 import { RoomsRepository } from './rooms.repository';
-import type { Room } from './types/rooms.types';
+import type { Room, RoomMemberView } from './types/rooms.types';
 import { PresenceService } from '../../redis/presence.service';
 import { NotificationsService } from '../notifications/notifications.service';
 
@@ -121,5 +121,23 @@ export class RoomsService {
     }
     const roomsOf = (agent: User): number => load.get(agent.id) ?? 0;
     return others.reduce((best, agent) => (roomsOf(agent) < roomsOf(best) ? agent : best), first);
+  }
+  async listMembers(roomId: string, viewer: User): Promise<RoomMemberView[]> {
+    await this.assertCanAccess(roomId, viewer);
+    const members = await this.roomsRepository.listMembers(roomId);
+    const online = await this.presence
+      .onlineAmong(members.map((member) => member.userId))
+      .catch(() => new Set<string>());
+    const canSeeReads = viewer.role !== 'CUSTOMER';
+    return members.map((member) => ({
+      ...member,
+      isOnline: online.has(member.userId),
+      lastReadAt: canSeeReads ? member.lastReadAt : null,
+    }));
+  }
+
+  async markRead(roomId: string, user: User): Promise<Date | null> {
+    await this.assertCanAccess(roomId, user);
+    return this.roomsRepository.markRead(roomId, user.id);
   }
 }

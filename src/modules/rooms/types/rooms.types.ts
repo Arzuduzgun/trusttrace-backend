@@ -22,3 +22,14 @@ export interface NewRoomMember {
   userId: string;
   memberRole: MemberRole;
 }
+
+export interface RoomMemberDetail {
+  userId: string;
+  displayName: string;
+  memberRole: MemberRole;
+  lastReadAt: Date | null;
+}
+
+export interface RoomMemberView extends RoomMemberDetail {
+  isOnline: boolean;
+}

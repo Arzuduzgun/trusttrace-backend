@@ -18,7 +18,7 @@ import { WsTicketService } from '../auth/ws-ticket.service';
 import { RoomsService } from '../rooms/rooms.service';
 import { UsersService } from '../users/users.service';
 import type { User } from '../users/types/users.types';
-import { CHAT_EVENTS, roomChannel, userChannel } from './chat.events';
+import { CHAT_EVENTS, roomChannel, staffChannel, userChannel } from './chat.events';
 import type { ChatSocketData } from './types/chat-socket.types';
 import { JoinRoomDto } from './dto/join-room.dto';
 import { MessageResponseDto } from './dto/message-response.dto';
@@ -111,8 +111,12 @@ export class ChatGateway
     @ConnectedSocket() client: Socket,
     @MessageBody() dto: JoinRoomDto,
   ): Promise<WsSuccess<{ roomId: string }>> {
-    await this.roomsService.assertCanAccess(dto.roomId, this.userOf(client));
+    const user = this.userOf(client);
+    await this.roomsService.assertCanAccess(dto.roomId, user);
     await client.join(roomChannel(dto.roomId));
+    if (user.role !== 'CUSTOMER') {
+      await client.join(staffChannel(dto.roomId));
+    }
     return { ok: true, data: { roomId: dto.roomId } };
   }
 
@@ -122,6 +126,24 @@ export class ChatGateway
     @MessageBody() dto: JoinRoomDto,
   ): Promise<WsSuccess<{ roomId: string }>> {
     await client.leave(roomChannel(dto.roomId));
+    await client.leave(staffChannel(dto.roomId));
+    return { ok: true, data: { roomId: dto.roomId } };
+  }
+
+  @SubscribeMessage(CHAT_EVENTS.MARK_READ)
+  async markRead(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() dto: JoinRoomDto,
+  ): Promise<WsSuccess<{ roomId: string }>> {
+    const user = this.userOf(client);
+    const lastReadAt = await this.roomsService.markRead(dto.roomId, user);
+    if (lastReadAt && user.role === 'CUSTOMER') {
+      this.server.to(staffChannel(dto.roomId)).emit(CHAT_EVENTS.READ_UPDATED, {
+        roomId: dto.roomId,
+        userId: user.id,
+        lastReadAt,
+      });
+    }
     return { ok: true, data: { roomId: dto.roomId } };
   }
 

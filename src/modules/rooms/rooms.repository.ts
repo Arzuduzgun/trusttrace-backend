@@ -4,9 +4,16 @@ import { DomainException } from '../../common/errors/domain.exception';
 import { DRIZZLE } from '../../database/database.tokens';
 import type { Database, DbExecutor } from '../../database/database.types';
 import { isUniqueViolation } from '../../database/postgres-errors';
-import { roomMembers, rooms } from '../../database/schema';
+import { roomMembers, rooms, users } from '../../database/schema';
 import { ROOM_ERRORS } from './rooms.errors';
-import type { MemberRole, NewRoom, NewRoomMember, Room, RoomType } from './types/rooms.types';
+import type {
+  MemberRole,
+  NewRoom,
+  NewRoomMember,
+  Room,
+  RoomMemberDetail,
+  RoomType,
+} from './types/rooms.types';
 
 const ROOM_COLUMNS = {
   id: rooms.id,
@@ -105,5 +112,27 @@ export class RoomsRepository {
       .where(and(inArray(roomMembers.userId, userIds), ne(rooms.status, 'CLOSED')))
       .groupBy(roomMembers.userId);
     return new Map(rows.map((row) => [row.userId, row.total]));
+  }
+  listMembers(roomId: string): Promise<RoomMemberDetail[]> {
+    return this.db
+      .select({
+        userId: roomMembers.userId,
+        displayName: users.displayName,
+        memberRole: roomMembers.memberRole,
+        lastReadAt: roomMembers.lastReadAt,
+      })
+      .from(roomMembers)
+      .innerJoin(users, eq(users.id, roomMembers.userId))
+      .where(eq(roomMembers.roomId, roomId))
+      .orderBy(roomMembers.joinedAt);
+  }
+
+  async markRead(roomId: string, userId: string): Promise<Date | null> {
+    const [row] = await this.db
+      .update(roomMembers)
+      .set({ lastReadAt: sql`now()` })
+      .where(and(eq(roomMembers.roomId, roomId), eq(roomMembers.userId, userId)))
+      .returning({ lastReadAt: roomMembers.lastReadAt });
+    return row?.lastReadAt ?? null;
   }
 }

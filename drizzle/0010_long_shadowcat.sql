@@ -1,0 +1,1 @@
+ALTER TABLE "room_members" ADD COLUMN "last_read_at" timestamp (3) with time zone;

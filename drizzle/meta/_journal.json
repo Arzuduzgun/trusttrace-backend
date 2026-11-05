@@ -71,6 +71,13 @@
       "when": 1793861819281,
       "tag": "0009_chemical_shinobi_shaw",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1793866663515,
+      "tag": "0010_long_shadowcat",
+      "breakpoints": true
     }
   ]
 }

@@ -409,6 +409,36 @@
         "tags": ["Rooms"]
       }
     },
+    "/api/v1/rooms/{id}/members": {
+      "get": {
+        "operationId": "RoomsController_members",
+        "parameters": [
+          { "name": "id", "required": true, "in": "path", "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["success", "data"],
+                  "properties": {
+                    "success": { "type": "boolean", "enum": [true] },
+                    "data": {
+                      "type": "array",
+                      "items": { "$ref": "#/components/schemas/RoomMemberResponseDto" }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [{ "bearer": [] }],
+        "tags": ["Rooms"]
+      }
+    },
     "/api/v1/admin/rooms": {
       "post": {
         "operationId": "AdminRoomsController_create",
@@ -884,6 +914,23 @@
           "createdAt": { "format": "date-time", "type": "string" }
         },
         "required": ["type", "status", "id", "name", "createdAt"]
+      },
+      "MemberRole": { "type": "string", "enum": ["CUSTOMER", "AGENT"] },
+      "RoomMemberResponseDto": {
+        "type": "object",
+        "properties": {
+          "memberRole": { "allOf": [{ "$ref": "#/components/schemas/MemberRole" }] },
+          "lastReadAt": {
+            "type": "string",
+            "nullable": true,
+            "format": "date-time",
+            "description": "İsteyen müşteriyse her zaman null."
+          },
+          "userId": { "type": "string" },
+          "displayName": { "type": "string" },
+          "isOnline": { "type": "boolean" }
+        },
+        "required": ["memberRole", "lastReadAt", "userId", "displayName", "isOnline"]
       },
       "CreateRoomDto": {
         "type": "object",

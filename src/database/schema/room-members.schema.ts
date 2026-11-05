@@ -15,6 +15,7 @@ export const roomMembers = pgTable(
       .references(() => users.id),
     memberRole: memberRoleEnum('member_role').notNull(),
     joinedAt: timestamp('joined_at', { withTimezone: true }).notNull().defaultNow(),
+    lastReadAt: timestamp('last_read_at', { withTimezone: true, precision: 3 }),
   },
   (table) => [
     primaryKey({ columns: [table.roomId, table.userId] }), //Aynı kişi aynı odaya iki kez eklenemez.

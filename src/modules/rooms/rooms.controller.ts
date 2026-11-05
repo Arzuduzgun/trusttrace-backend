@@ -6,6 +6,7 @@ import { Roles } from '../../common/decorators/roles.decorator';
 import type { User } from '../users/types/users.types';
 import { RoomResponseDto } from './dto/room-response.dto';
 import { RoomsService } from './rooms.service';
+import { RoomMemberResponseDto } from './dto/room-member-response.dto';
 
 @ApiTags('Rooms')
 @ApiBearerAuth()
@@ -43,5 +44,15 @@ export class RoomsController {
     @CurrentUser() user: User,
   ): Promise<RoomResponseDto> {
     return RoomResponseDto.from(await this.roomsService.joinProductRoom(roomId, user));
+  }
+
+  @Get(':id/members')
+  @ApiEnvelope(RoomMemberResponseDto, { isArray: true })
+  async members(
+    @Param('id', ParseUUIDPipe) roomId: string,
+    @CurrentUser() user: User,
+  ): Promise<RoomMemberResponseDto[]> {
+    const members = await this.roomsService.listMembers(roomId, user);
+    return members.map((member) => RoomMemberResponseDto.from(member));
   }
 }
