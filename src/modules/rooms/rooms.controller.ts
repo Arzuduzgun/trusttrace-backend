@@ -79,6 +79,6 @@ export class RoomsController {
     @Body() dto: EscalateRoomDto,
     @CurrentUser() user: User,
   ): Promise<RoomResponseDto> {
-    return RoomResponseDto.from(await this.roomStatusService.escalate(roomId, user, dto.note));
+    return RoomResponseDto.from(await this.roomStatusService.escalate(roomId, user, dto));
   }
 }

@@ -53,8 +53,7 @@ export class NotificationsService {
   async notifyRoomEscalated(
     adminIds: string[],
     room: { id: string; name: string },
-    agentName: string,
-    note: string | null,
+    report: { agentName: string; customerName: string; reasonCode: string; note: string | null },
   ): Promise<void> {
     for (const adminId of adminIds) {
       try {
@@ -62,7 +61,7 @@ export class NotificationsService {
           userId: adminId,
           type: 'ROOM_ESCALATED',
           roomId: room.id,
-          payload: { roomName: room.name, agentName, note },
+          payload: { roomName: room.name, ...report },
         });
         this.chatNotifier.notifyUser(
           adminId,

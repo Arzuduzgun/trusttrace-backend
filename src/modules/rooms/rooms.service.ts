@@ -128,11 +128,16 @@ export class RoomsService {
     const online = await this.presence
       .onlineAmong(members.map((member) => member.userId))
       .catch(() => new Set<string>());
-    const canSeeReads = viewer.role !== 'CUSTOMER';
+    const isStaff = viewer.role !== 'CUSTOMER';
     return members.map((member) => ({
-      ...member,
+      userId: member.userId,
+      displayName: member.displayName,
+      memberRole: member.memberRole,
       isOnline: online.has(member.userId),
-      lastReadAt: canSeeReads ? member.lastReadAt : null,
+      lastReadAt: isStaff ? member.lastReadAt : null,
+      email: isStaff ? member.email : null,
+      status: isStaff ? member.status : null,
+      suspendedUntil: isStaff ? member.suspendedUntil : null,
     }));
   }
 

@@ -30,6 +30,11 @@ export const ROOM_ERRORS = {
   ROOM_NOT_ESCALATABLE: {
     code: 'ROOM_NOT_ESCALATABLE',
     status: HttpStatus.CONFLICT,
-    message: 'Sadece açık bir görüşme yöneticiye iletilebilir.',
+    message: 'Kapalı bir görüşme yöneticiye bildirilemez.',
+  },
+  ROOM_MEMBER_NOT_CUSTOMER: {
+    code: 'ROOM_MEMBER_NOT_CUSTOMER',
+    status: HttpStatus.BAD_REQUEST,
+    message: 'Seçilen kişi bu odanın müşterisi değil.',
   },
 } as const satisfies ErrorCatalog;

@@ -15,6 +15,8 @@ import type {
   RoomStatus,
   RoomType,
 } from './types/rooms.types';
+import { ModerationEventsRepository } from '../moderation-events/moderation-events.repository';
+import { NewModerationEvent } from '../moderation-events/types/moderation-events.types';
 
 const ROOM_COLUMNS = {
   id: rooms.id,
@@ -27,7 +29,10 @@ const ROOM_COLUMNS = {
 
 @Injectable()
 export class RoomsRepository {
-  constructor(@Inject(DRIZZLE) private readonly db: Database) {}
+  constructor(
+    @Inject(DRIZZLE) private readonly db: Database,
+    private readonly moderationEventsRepository: ModerationEventsRepository,
+  ) {}
 
   async findById(id: string): Promise<Room | null> {
     const [row] = await this.db.select(ROOM_COLUMNS).from(rooms).where(eq(rooms.id, id)).limit(1);
@@ -122,6 +127,9 @@ export class RoomsRepository {
         displayName: users.displayName,
         memberRole: roomMembers.memberRole,
         lastReadAt: roomMembers.lastReadAt,
+        email: users.email,
+        status: users.status,
+        suspendedUntil: users.suspendedUntil,
       })
       .from(roomMembers)
       .innerJoin(users, eq(users.id, roomMembers.userId))
@@ -149,5 +157,20 @@ export class RoomsRepository {
       .where(and(eq(rooms.id, roomId), onlyFrom ? eq(rooms.status, onlyFrom) : undefined))
       .returning(ROOM_COLUMNS);
     return row ?? null;
+  }
+
+  async escalateWithReport(roomId: string, report: NewModerationEvent): Promise<Room | null> {
+    return this.db.transaction(async (tx) => {
+      const [room] = await tx
+        .update(rooms)
+        .set({ status: 'ESCALATED' })
+        .where(and(eq(rooms.id, roomId), ne(rooms.status, 'CLOSED')))
+        .returning(ROOM_COLUMNS);
+      if (!room) {
+        return null;
+      }
+      await this.moderationEventsRepository.append(report, tx);
+      return room;
+    });
   }
 }

@@ -939,9 +939,9 @@
       },
       "ModerationEventType": {
         "type": "string",
-        "enum": ["VIOLATION_DETECTED", "SANCTION_IMPOSED", "SANCTION_REVOKED"]
+        "enum": ["VIOLATION_DETECTED", "SANCTION_IMPOSED", "SANCTION_REVOKED", "USER_REPORTED"]
       },
-      "ModerationActorType": { "type": "string", "enum": ["SYSTEM", "ADMIN"] },
+      "ModerationActorType": { "type": "string", "enum": ["SYSTEM", "ADMIN", "AGENT"] },
       "ModerationEventResponseDto": {
         "type": "object",
         "properties": {
@@ -1052,15 +1052,45 @@
             "format": "date-time",
             "description": "İsteyen müşteriyse her zaman null."
           },
+          "email": {
+            "type": "string",
+            "nullable": true,
+            "description": "Sadece temsilci ve yöneticiye döner."
+          },
+          "status": { "nullable": true, "allOf": [{ "$ref": "#/components/schemas/UserStatus" }] },
+          "suspendedUntil": { "type": "string", "nullable": true, "format": "date-time" },
           "userId": { "type": "string" },
           "displayName": { "type": "string" },
           "isOnline": { "type": "boolean" }
         },
-        "required": ["memberRole", "lastReadAt", "userId", "displayName", "isOnline"]
+        "required": [
+          "memberRole",
+          "lastReadAt",
+          "email",
+          "status",
+          "suspendedUntil",
+          "userId",
+          "displayName",
+          "isOnline"
+        ]
+      },
+      "SanctionReasonCode": {
+        "type": "string",
+        "enum": ["INSULT", "SPAM", "THREAT", "FRAUD", "INAPPROPRIATE_CONTENT", "OTHER"]
       },
       "EscalateRoomDto": {
         "type": "object",
-        "properties": { "note": { "type": "string", "maxLength": 500 } }
+        "properties": {
+          "reasonCode": { "allOf": [{ "$ref": "#/components/schemas/SanctionReasonCode" }] },
+          "note": {
+            "type": "string",
+            "minLength": 3,
+            "maxLength": 500,
+            "description": "reasonCode OTHER ise zorunlu."
+          },
+          "customerId": { "type": "string", "format": "uuid" }
+        },
+        "required": ["reasonCode", "customerId"]
       },
       "CreateRoomDto": {
         "type": "object",
@@ -1145,10 +1175,6 @@
           "action": { "allOf": [{ "$ref": "#/components/schemas/RuleAction" }] },
           "isActive": { "type": "boolean" }
         }
-      },
-      "SanctionReasonCode": {
-        "type": "string",
-        "enum": ["INSULT", "SPAM", "THREAT", "FRAUD", "INAPPROPRIATE_CONTENT", "OTHER"]
       },
       "SuspendUserDto": {
         "type": "object",

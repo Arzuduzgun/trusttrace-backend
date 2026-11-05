@@ -7,6 +7,7 @@ import { ROOM_ERRORS } from './rooms.errors';
 import { RoomsRepository } from './rooms.repository';
 import { RoomsService } from './rooms.service';
 import type { Room, RoomStatus } from './types/rooms.types';
+import { EscalateRoomDto } from './dto/escalate-room.dto';
 
 @Injectable()
 export class RoomStatusService {
@@ -17,9 +18,24 @@ export class RoomStatusService {
     private readonly notificationsService: NotificationsService,
   ) {}
 
-  async escalate(roomId: string, agent: User, note: string | undefined): Promise<Room> {
+  async escalate(roomId: string, agent: User, dto: EscalateRoomDto): Promise<Room> {
     await this.roomsService.assertCanAccess(roomId, agent);
-    const room = await this.roomsRepository.updateStatus(roomId, 'ESCALATED', 'OPEN');
+    const memberRole = await this.roomsRepository.findMemberRole(roomId, dto.customerId);
+    if (memberRole !== 'CUSTOMER') {
+      throw new DomainException(ROOM_ERRORS.ROOM_MEMBER_NOT_CUSTOMER);
+    }
+    const customer = await this.usersService.getById(dto.customerId);
+    const room = await this.roomsRepository.escalateWithReport(roomId, {
+      eventType: 'USER_REPORTED',
+      actorType: 'AGENT',
+      actorId: agent.id,
+      subjectUserId: customer.id,
+      roomId,
+      messageId: null,
+      refersToEventId: null,
+      traceId: null,
+      payload: { reasonCode: dto.reasonCode, note: dto.note ?? null },
+    });
     if (!room) {
       throw new DomainException(ROOM_ERRORS.ROOM_NOT_ESCALATABLE);
     }
@@ -27,8 +43,12 @@ export class RoomStatusService {
     await this.notificationsService.notifyRoomEscalated(
       admins.map((admin) => admin.id),
       room,
-      agent.displayName,
-      note ?? null,
+      {
+        agentName: agent.displayName,
+        customerName: customer.displayName,
+        reasonCode: dto.reasonCode,
+        note: dto.note ?? null,
+      },
     );
     return room;
   }

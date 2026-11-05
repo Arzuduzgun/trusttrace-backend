@@ -16,9 +16,14 @@ export const moderationEventTypeEnum = pgEnum('moderation_event_type', [
   'VIOLATION_DETECTED',
   'SANCTION_IMPOSED',
   'SANCTION_REVOKED',
+  'USER_REPORTED',
 ]);
 
-export const moderationActorTypeEnum = pgEnum('moderation_actor_type', ['SYSTEM', 'ADMIN']);
+export const moderationActorTypeEnum = pgEnum('moderation_actor_type', [
+  'SYSTEM',
+  'ADMIN',
+  'AGENT',
+]);
 
 export const moderationEvents = pgTable(
   'moderation_events',

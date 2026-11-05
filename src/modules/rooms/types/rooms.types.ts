@@ -1,4 +1,5 @@
 import type { memberRoleEnum, roomStatusEnum, roomTypeEnum } from '../../../database/schema';
+import { UserStatus } from '../../users/types/users.types';
 
 export type RoomType = (typeof roomTypeEnum.enumValues)[number];
 export type RoomStatus = (typeof roomStatusEnum.enumValues)[number];
@@ -29,8 +30,18 @@ export interface RoomMemberDetail {
   displayName: string;
   memberRole: MemberRole;
   lastReadAt: Date | null;
+  email: string;
+  status: UserStatus;
+  suspendedUntil: Date | null;
 }
 
-export interface RoomMemberView extends RoomMemberDetail {
+export interface RoomMemberView {
+  userId: string;
+  displayName: string;
+  memberRole: MemberRole;
   isOnline: boolean;
+  lastReadAt: Date | null;
+  email: string | null;
+  status: UserStatus | null;
+  suspendedUntil: Date | null;
 }
