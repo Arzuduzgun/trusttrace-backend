@@ -6,6 +6,7 @@ export const CHAT_EVENTS = {
   SANCTION_APPLIED: 'sanction:applied',
   SANCTION_REVOKED: 'sanction:revoked',
   MESSAGE_FAILED: 'message:failed',
+  NOTIFICATION_NEW: 'notification:new',
 } as const;
 
 export const roomChannel = (roomId: string): string => `room:${roomId}`;

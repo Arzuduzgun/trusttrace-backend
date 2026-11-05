@@ -14,12 +14,15 @@ import { ModerationModule } from './modules/moderation/moderation.module';
 import { ModerationEventsModule } from './modules/moderation-events/moderation-events.module';
 import { SanctionsModule } from './modules/sanctions/sanctions.module';
 import { RedisModule } from './redis/redis.module';
+import { RealtimeModule } from './realtime/realtime.module';
+import { NotificationsModule } from './modules/notifications/notifications.module';
 
 @Module({
   imports: [
     AppConfigModule,
     DatabaseModule,
     RedisModule,
+    RealtimeModule,
     AppLoggerModule,
     HealthModule,
     UsersModule,
@@ -29,6 +32,7 @@ import { RedisModule } from './redis/redis.module';
     ModerationModule,
     ModerationEventsModule,
     SanctionsModule,
+    NotificationsModule,
   ],
   providers: [
     { provide: APP_FILTER, useClass: GlobalExceptionFilter },

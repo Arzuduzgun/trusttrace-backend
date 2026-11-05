@@ -64,6 +64,13 @@
       "when": 1793774576864,
       "tag": "0008_fair_tombstone",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1793861819281,
+      "tag": "0009_chemical_shinobi_shaw",
+      "breakpoints": true
     }
   ]
 }

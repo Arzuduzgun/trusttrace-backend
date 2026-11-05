@@ -457,6 +457,54 @@
         "tags": ["Admin – Rooms"]
       }
     },
+    "/api/v1/notifications": {
+      "get": {
+        "operationId": "NotificationsController_list",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["success", "data"],
+                  "properties": {
+                    "success": { "type": "boolean", "enum": [true] },
+                    "data": {
+                      "type": "array",
+                      "items": { "$ref": "#/components/schemas/NotificationResponseDto" }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [{ "bearer": [] }],
+        "tags": ["Notifications"]
+      }
+    },
+    "/api/v1/notifications/read-all": {
+      "post": {
+        "operationId": "NotificationsController_markAllRead",
+        "parameters": [],
+        "responses": { "204": { "description": "" } },
+        "security": [{ "bearer": [] }],
+        "tags": ["Notifications"]
+      }
+    },
+    "/api/v1/notifications/{id}/read": {
+      "post": {
+        "operationId": "NotificationsController_markRead",
+        "parameters": [
+          { "name": "id", "required": true, "in": "path", "schema": { "type": "string" } }
+        ],
+        "responses": { "204": { "description": "" } },
+        "security": [{ "bearer": [] }],
+        "tags": ["Notifications"]
+      }
+    },
     "/api/v1/rooms/{roomId}/messages": {
       "get": {
         "operationId": "MessagesController_list",
@@ -846,6 +894,19 @@
         "type": "object",
         "properties": { "userId": { "type": "string", "format": "uuid" } },
         "required": ["userId"]
+      },
+      "NotificationType": { "type": "string", "enum": ["ROOM_ASSIGNED"] },
+      "NotificationResponseDto": {
+        "type": "object",
+        "properties": {
+          "type": { "allOf": [{ "$ref": "#/components/schemas/NotificationType" }] },
+          "payload": { "type": "object", "additionalProperties": true },
+          "id": { "type": "string" },
+          "roomId": { "type": "string", "nullable": true },
+          "readAt": { "format": "date-time", "type": "string", "nullable": true },
+          "createdAt": { "format": "date-time", "type": "string" }
+        },
+        "required": ["type", "payload", "id", "roomId", "readAt", "createdAt"]
       },
       "MessageStatus": {
         "type": "string",

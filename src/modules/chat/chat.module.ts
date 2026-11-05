@@ -5,7 +5,6 @@ import { ModerationEventsModule } from '../moderation-events/moderation-events.m
 import { RoomsModule } from '../rooms/rooms.module';
 import { UsersModule } from '../users/users.module';
 import { ChatGateway } from './chat.gateway';
-import { ChatNotifierService } from './chat-notifier.service';
 import { MessagesController } from './messages.controller';
 import { MessagesRepository } from './messages.repository';
 import { MessagesService } from './messages.service';
@@ -13,7 +12,6 @@ import { MessagesService } from './messages.service';
 @Module({
   imports: [AuthModule, RoomsModule, UsersModule, ModerationModule, ModerationEventsModule],
   controllers: [MessagesController],
-  providers: [MessagesService, MessagesRepository, ChatGateway, ChatNotifierService],
-  exports: [ChatNotifierService],
+  providers: [MessagesService, MessagesRepository, ChatGateway],
 })
 export class ChatModule {}

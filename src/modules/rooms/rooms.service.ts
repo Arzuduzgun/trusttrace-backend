@@ -6,6 +6,7 @@ import { ROOM_ERRORS } from './rooms.errors';
 import { RoomsRepository } from './rooms.repository';
 import type { Room } from './types/rooms.types';
 import { PresenceService } from '../../redis/presence.service';
+import { NotificationsService } from '../notifications/notifications.service';
 
 @Injectable()
 export class RoomsService {
@@ -14,6 +15,7 @@ export class RoomsService {
     private readonly roomsRepository: RoomsRepository,
     private readonly usersService: UsersService,
     private readonly presence: PresenceService,
+    private readonly notificationsService: NotificationsService,
   ) {}
   listMyRooms(user: User): Promise<Room[]> {
     return user.role === 'ADMIN'
@@ -29,10 +31,12 @@ export class RoomsService {
       throw new DomainException(ROOM_ERRORS.ROOM_NO_AGENT_AVAILABLE);
     }
     const candidates = await this.preferOnline(agents);
-    return this.roomsRepository.createAssigned(
+    const assignment: { agentId?: string } = {};
+    const room = await this.roomsRepository.createAssigned(
       candidates.map((agent) => agent.id),
       (load) => {
         const agent = this.leastBusy(candidates, load);
+        assignment.agentId = agent.id;
         return {
           room: {
             type: 'DIRECT',
@@ -46,6 +50,14 @@ export class RoomsService {
         };
       },
     );
+    if (assignment.agentId) {
+      await this.notificationsService.notifyRoomAssigned(
+        assignment.agentId,
+        room.id,
+        customer.displayName,
+      );
+    }
+    return room;
   }
   async joinProductRoom(roomId: string, customer: User): Promise<Room> {
     const room = await this.getRoom(roomId);

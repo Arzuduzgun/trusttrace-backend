@@ -24,7 +24,7 @@ import { JoinRoomDto } from './dto/join-room.dto';
 import { MessageResponseDto } from './dto/message-response.dto';
 import { SendMessageDto } from './dto/send-message.dto';
 import { MessagesService } from './messages.service';
-import { ChatNotifierService } from './chat-notifier.service';
+import { ChatNotifierService } from '../../realtime/chat-notifier.service';
 import { DomainException } from '../../common/errors/domain.exception';
 import { PresenceService } from '../../redis/presence.service';
 

@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { DomainException } from '../../common/errors/domain.exception';
 import { TokenService } from '../auth/token.service';
 import { CHAT_EVENTS } from '../chat/chat.events';
-import { ChatNotifierService } from '../chat/chat-notifier.service';
+import { ChatNotifierService } from '../../realtime/chat-notifier.service';
 import { ModerationEventsService } from '../moderation-events/moderation-events.service';
 import type { NewModerationEvent } from '../moderation-events/types/moderation-events.types';
 import { UsersService } from '../users/users.service';

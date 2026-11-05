@@ -4,9 +4,10 @@ import { AdminRoomsController } from './admin-rooms.controller';
 import { RoomsController } from './rooms.controller';
 import { RoomsRepository } from './rooms.repository';
 import { RoomsService } from './rooms.service';
+import { NotificationsModule } from '../notifications/notifications.module';
 
 @Module({
-  imports: [UsersModule],
+  imports: [UsersModule, NotificationsModule],
   controllers: [RoomsController, AdminRoomsController],
   providers: [RoomsService, RoomsRepository],
   exports: [RoomsService],

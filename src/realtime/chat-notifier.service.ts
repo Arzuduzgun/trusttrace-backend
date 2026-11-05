@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import type { Namespace } from 'socket.io';
-import { userChannel } from './chat.events';
+import { userChannel } from '../modules/chat/chat.events';
 
 @Injectable()
 export class ChatNotifierService {
