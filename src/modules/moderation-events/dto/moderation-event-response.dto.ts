@@ -18,6 +18,7 @@ export class ModerationEventResponseDto {
   roomId!: string | null;
   messageId!: string | null;
   refersToEventId!: string | null;
+  traceId!: string | null;
   @ApiProperty({ type: 'object', additionalProperties: true })
   payload!: Record<string, unknown>;
   occurredAt!: Date;
@@ -35,6 +36,7 @@ export class ModerationEventResponseDto {
       roomId: event.roomId,
       messageId: event.messageId,
       refersToEventId: event.refersToEventId,
+      traceId: event.traceId,
       payload: event.payload,
       occurredAt: event.occurredAt,
       prevHash: event.prevHash,

@@ -26,6 +26,7 @@ import { SendMessageDto } from './dto/send-message.dto';
 import { MessagesService } from './messages.service';
 import { ChatNotifierService } from '../../realtime/chat-notifier.service';
 import { DomainException } from '../../common/errors/domain.exception';
+import { currentTraceId, withSpan } from '../../common/tracing/with-span';
 import { PresenceService } from '../../redis/presence.service';
 
 const PRESENCE_HEARTBEAT_MS = 20_000;
@@ -153,25 +154,35 @@ export class ChatGateway
     @MessageBody() dto: SendMessageDto,
   ): Promise<WsSuccess<MessageResponseDto>> {
     const sender = this.userOf(client);
-    try {
-      const message = await this.messagesService.send(
-        dto.roomId,
-        sender,
-        dto.body,
-        dto.clientMessageId,
-      );
-      if (message.status === 'DELIVERED' || message.status === 'FLAGGED') {
-        this.server.to(roomChannel(dto.roomId)).emit(CHAT_EVENTS.NEW_MESSAGE, message);
+    const attributes = {
+      'room.id': dto.roomId,
+      'user.id': sender.id,
+      'message.client_id': dto.clientMessageId,
+    };
+    return withSpan<WsSuccess<MessageResponseDto>>('chat.message', attributes, async () => {
+      try {
+        const message = await this.messagesService.send(
+          dto.roomId,
+          sender,
+          dto.body,
+          dto.clientMessageId,
+        );
+        if (message.status === 'DELIVERED' || message.status === 'FLAGGED') {
+          await withSpan('message.broadcast', { 'message.id': message.id }, () =>
+            this.server.to(roomChannel(dto.roomId)).emit(CHAT_EVENTS.NEW_MESSAGE, message),
+          );
+        }
+        return { ok: true, data: message };
+      } catch (error) {
+        this.server.to(userChannel(sender.id)).emit(CHAT_EVENTS.MESSAGE_FAILED, {
+          roomId: dto.roomId,
+          clientMessageId: dto.clientMessageId,
+          reason: error instanceof DomainException ? error.message : 'Mesaj gönderilemedi.',
+          traceId: currentTraceId(),
+        });
+        throw error;
       }
-      return { ok: true, data: message };
-    } catch (error) {
-      this.server.to(userChannel(sender.id)).emit(CHAT_EVENTS.MESSAGE_FAILED, {
-        roomId: dto.roomId,
-        clientMessageId: dto.clientMessageId,
-        reason: error instanceof DomainException ? error.message : 'Mesaj gönderilemedi.',
-      });
-      throw error;
-    }
+    });
   }
 
   private async authenticate(socket: Socket): Promise<void> {

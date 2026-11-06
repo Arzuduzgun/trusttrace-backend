@@ -16,6 +16,8 @@ import { NewModerationEvent } from '../moderation-events/types/moderation-events
 import { canSendMessages } from '../users/user-status';
 import { PinoLogger } from 'nestjs-pino';
 import { RateLimiterService } from '../../redis/rate-limiter.service';
+import { AppConfigService } from '../../config/app-config.service';
+import { annotateSpan, currentTraceId, withSpan } from '../../common/tracing/with-span';
 
 const STATUS_BY_VERDICT: Record<ScanVerdict, MessageStatus> = {
   CLEAN: 'DELIVERED',
@@ -37,6 +39,7 @@ export class MessagesService {
     private readonly usersService: UsersService,
     private readonly contentScanner: ContentScannerService,
     private readonly rateLimiter: RateLimiterService,
+    private readonly config: AppConfigService,
   ) {
     this.logger.setContext(MessagesService.name);
   }
@@ -93,13 +96,20 @@ export class MessagesService {
     if (room.status === 'CLOSED') {
       throw new DomainException(CHAT_ERRORS.CHAT_ROOM_CLOSED);
     }
-    const message = await this.messagesRepository.insertOnce({
-      roomId,
-      senderId: currentSender.id,
-      body: body.trim(),
-      clientMessageId,
-      status: 'PENDING',
-    });
+    const message = await withSpan('message.persist', { 'room.id': roomId }, () =>
+      this.messagesRepository.insertOnce({
+        roomId,
+        senderId: currentSender.id,
+        body: body.trim(),
+        clientMessageId,
+        status: 'PENDING',
+      }),
+    );
+    annotateSpan({ 'message.id': message.id });
+    this.logger.info(
+      { messageId: message.id, roomId, stage: 'persisted' },
+      'Message stored as PENDING',
+    );
     const finalMessage = PROCESSABLE_STATUSES.has(message.status)
       ? await this.process(message)
       : message;
@@ -108,17 +118,39 @@ export class MessagesService {
 
   private async process(message: Message): Promise<Message> {
     try {
-      const scan = await this.contentScanner.scan(message.body);
-      return await this.messagesRepository.finalize(
-        message.id,
-        STATUS_BY_VERDICT[scan.verdict],
-        scan.verdict === 'CLEAN' ? undefined : (saved) => this.toViolationEvent(saved, scan),
+      const scan = await withSpan('moderation.scan', { 'message.id': message.id }, () =>
+        this.scan(message.body),
       );
+      this.logger.info(
+        { messageId: message.id, verdict: scan.verdict, stage: 'scanned' },
+        'Message scanned',
+      );
+      const status = STATUS_BY_VERDICT[scan.verdict];
+      const saved = await withSpan('message.finalize', { 'message.status': status }, () =>
+        this.messagesRepository.finalize(
+          message.id,
+          status,
+          scan.verdict === 'CLEAN' ? undefined : (row) => this.toViolationEvent(row, scan),
+        ),
+      );
+      this.logger.info({ messageId: message.id, status, stage: 'finalized' }, 'Message finalized');
+      return saved;
     } catch (error) {
-      this.logger.error({ err: error, messageId: message.id }, 'Message processing failed');
+      this.logger.error(
+        { err: error, messageId: message.id, stage: 'failed' },
+        'Message processing failed',
+      );
       await this.messagesRepository.markFailed(message.id).catch(() => undefined);
       throw new DomainException(CHAT_ERRORS.CHAT_MESSAGE_FAILED);
     }
+  }
+
+  private scan(body: string): Promise<ScanResult> {
+    const failToken = this.config.get('CHAOS_FAIL_TOKEN');
+    if (failToken && body.includes(failToken)) {
+      throw new Error('Simulated scanner failure (CHAOS_FAIL_TOKEN)');
+    }
+    return this.contentScanner.scan(body);
   }
 
   private toViolationEvent(saved: Message, scan: ScanResult): NewModerationEvent {
@@ -130,7 +162,7 @@ export class MessagesService {
       roomId: saved.roomId,
       messageId: saved.id,
       refersToEventId: null,
-      traceId: null,
+      traceId: currentTraceId(),
       payload: { verdict: scan.verdict, messageBody: saved.body, matches: scan.matches },
     };
   }

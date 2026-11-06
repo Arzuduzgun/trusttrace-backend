@@ -10,6 +10,8 @@ export const envSchema = z.object({
   JWT_ACCESS_TTL_SECONDS: z.coerce.number().int().positive().default(900),
   JWT_REFRESH_TTL_DAYS: z.coerce.number().int().positive().default(7),
   WS_TICKET_SECRET: z.string().min(32),
+  OTEL_EXPORTER_OTLP_ENDPOINT: z.url().optional(),
+  CHAOS_FAIL_TOKEN: z.string().min(3).optional(),
 });
 
 export type Env = z.infer<typeof envSchema>;

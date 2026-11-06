@@ -17,10 +17,12 @@ import { RedisModule } from './redis/redis.module';
 import { RealtimeModule } from './realtime/realtime.module';
 import { NotificationsModule } from './modules/notifications/notifications.module';
 import { ProductsModule } from './modules/products/products.module';
+import { TracingModule } from './common/tracing/tracing.module';
 
 @Module({
   imports: [
     AppConfigModule,
+    TracingModule,
     DatabaseModule,
     RedisModule,
     RealtimeModule,

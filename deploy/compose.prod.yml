@@ -42,11 +42,21 @@ services:
       JWT_ACCESS_TTL_SECONDS: 900
       JWT_REFRESH_TTL_DAYS: 7
       WS_TICKET_SECRET: ${WS_TICKET_SECRET}
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://jaeger:4318
+      CHAOS_FAIL_TOKEN: __fail__
     depends_on:
       postgres:
         condition: service_healthy
       redis:
         condition: service_healthy
+      jaeger:
+        condition: service_started
+
+  jaeger:
+    image: jaegertracing/all-in-one:1.62.0
+    restart: unless-stopped
+    environment:
+      MEMORY_MAX_TRACES: 20000
 
   frontend:
     build:
@@ -72,11 +82,13 @@ services:
       CADDY_EMAIL: ${CADDY_EMAIL}
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - ../../jaeger-auth.caddy:/etc/caddy/jaeger-auth.caddy:ro
       - caddy_data:/data
       - caddy_config:/config
     depends_on:
       - frontend
       - backend
+      - jaeger
 
   tools:
     image: trusttrace-backend

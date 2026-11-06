@@ -13,3 +13,8 @@
 		reverse_proxy frontend:3000
 	}
 }
+
+jaeger.{$DOMAIN} {
+	import /etc/caddy/jaeger-auth.caddy
+	reverse_proxy jaeger:16686
+}

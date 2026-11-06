@@ -2,6 +2,7 @@ import { randomUUID } from 'node:crypto';
 import { Module } from '@nestjs/common';
 import { LoggerModule } from 'nestjs-pino';
 import { AppConfigService } from '../../config/app-config.service';
+import { currentTraceId } from '../tracing/with-span';
 
 const REQUEST_ID_PATTERN = /^[\w-]{8,64}$/;
 
@@ -26,6 +27,10 @@ const REDACTED_PATHS = [
           pinoHttp: {
             level: config.get('LOG_LEVEL'),
             redact: { paths: REDACTED_PATHS, censor: '[Redacted]' },
+            mixin: () => {
+              const traceId = currentTraceId();
+              return traceId ? { traceId } : {};
+            },
             genReqId: (req, res) => {
               const incoming = req.headers['x-request-id'];
               const requestId =
