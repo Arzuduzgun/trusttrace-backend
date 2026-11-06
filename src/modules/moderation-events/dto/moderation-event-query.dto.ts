@@ -1,6 +1,6 @@
 import { Type } from 'class-transformer';
 import { IsIn, IsInt, IsOptional, IsUUID, Max, Min } from 'class-validator';
-import { moderationActorTypeEnum, moderationEventTypeEnum } from '../../../database/schema';
+import { moderationEventTypeEnum } from '../../../database/schema';
 import type { ModerationEventType } from '../types/moderation-events.types';
 import { ApiProperty } from '@nestjs/swagger';
 
@@ -8,8 +8,8 @@ export class ModerationEventQueryDto {
   @IsOptional()
   @IsIn(moderationEventTypeEnum.enumValues)
   @ApiProperty({
-    enum: moderationActorTypeEnum.enumValues,
-    enumName: 'ModerationActorType',
+    enum: moderationEventTypeEnum.enumValues,
+    enumName: 'ModerationEventType',
     required: false,
   })
   eventType?: ModerationEventType;

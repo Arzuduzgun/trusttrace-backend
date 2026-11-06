@@ -57,4 +57,14 @@ export const AUTH_ERRORS = {
     status: HttpStatus.TOO_MANY_REQUESTS,
     message: 'Çok fazla giriş denemesi yapıldı. Lütfen 15 dakika sonra tekrar deneyin.',
   },
+  AUTH_INVITE_INVALID: {
+    code: 'AUTH_INVITE_INVALID',
+    status: HttpStatus.NOT_FOUND,
+    message: 'Davet linki geçersiz, kullanılmış ya da süresi dolmuş.',
+  },
+  AUTH_INVITE_NOT_AGENT: {
+    code: 'AUTH_INVITE_NOT_AGENT',
+    status: HttpStatus.BAD_REQUEST,
+    message: 'Davet linki sadece temsilciler için oluşturulabilir.',
+  },
 } as const satisfies ErrorCatalog;

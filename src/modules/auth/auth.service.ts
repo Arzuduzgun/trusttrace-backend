@@ -1,3 +1,4 @@
+import { randomBytes } from 'node:crypto';
 import { Injectable } from '@nestjs/common';
 import { DomainException } from '../../common/errors/domain.exception';
 import { UserResponseDto } from '../users/dto/user-response.dto';
@@ -25,16 +26,20 @@ export class AuthService {
   ) {}
 
   async register(dto: RegisterDto): Promise<AuthResult> {
-    const user = await this.createAccount(dto, 'CUSTOMER');
+    const user = await this.createAccount(dto, dto.password, 'CUSTOMER');
     return this.startSession(user);
   }
 
   createAgent(dto: CreateAgentDto): Promise<User> {
-    return this.createAccount(dto, 'AGENT');
+    return this.createAccount(dto, randomBytes(32).toString('hex'), 'AGENT');
   }
 
-  private async createAccount(dto: CreateAgentDto, role: UserRole): Promise<User> {
-    const passwordHash = await this.passwordService.hash(dto.password);
+  private async createAccount(
+    dto: CreateAgentDto,
+    password: string,
+    role: UserRole,
+  ): Promise<User> {
+    const passwordHash = await this.passwordService.hash(password);
     return this.usersService.create({
       email: dto.email,
       displayName: dto.displayName,

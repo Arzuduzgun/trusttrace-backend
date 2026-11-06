@@ -11,16 +11,21 @@ import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { RolesGuard } from './guards/roles.guard';
 import { WsTicketService } from './ws-ticket.service';
 import { AdminAgentsController } from './admin-agents.controller';
+import { InvitesController } from './invites.controller';
+import { InvitesRepository } from './invites.repository';
+import { InvitesService } from './invites.service';
 
 @Module({
   imports: [UsersModule, JwtModule.register({})],
-  controllers: [AuthController, AdminAgentsController],
+  controllers: [AuthController, AdminAgentsController, InvitesController],
   providers: [
     AuthService,
     PasswordService,
     TokenService,
     WsTicketService,
     RefreshTokensRepository,
+    InvitesService,
+    InvitesRepository,
     { provide: APP_GUARD, useClass: JwtAuthGuard },
     { provide: APP_GUARD, useClass: RolesGuard },
   ],
