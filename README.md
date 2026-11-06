@@ -3,12 +3,12 @@
 Müşteri hizmetleri için gerçek zamanlı, **denetlenebilir ve izlenebilir** chat platformunun API ve WebSocket sunucusu.
 Müşteriler temsilcilerle birebir veya ürün odalarında yazışır; her mesaj içerik taramasından geçer, ihlaller değiştirilemez bir deftere yazılır ve her mesajın yolculuğu tek bir trace ID ile izlenir.
 
-| | |
-|---|---|
-| Canlı uygulama | https://56-228-77-224.sslip.io |
-| API dokümantasyonu (Swagger) | https://56-228-77-224.sslip.io/docs |
-| Trace görselleştirme (Jaeger, şifreli) | https://jaeger.56-228-77-224.sslip.io |
-| Frontend reposu | https://github.com/Arzuduzgun/trusttrace-frontend |
+|                                        |                                                   |
+| -------------------------------------- | ------------------------------------------------- |
+| Canlı uygulama                         | https://56-228-77-224.sslip.io                    |
+| API dokümantasyonu (Swagger)           | https://56-228-77-224.sslip.io/docs               |
+| Trace görselleştirme (Jaeger, şifreli) | https://jaeger.56-228-77-224.sslip.io             |
+| Frontend reposu                        | https://github.com/Arzuduzgun/trusttrace-frontend |
 
 ## Teknolojiler
 
@@ -29,7 +29,7 @@ flowchart LR
 
 - **Katmanlar:** controller → service → repository. Servisler veritabanına doğrudan erişemez (oxlint kuralı ile zorlanır).
 - **Kimlik doğrulama:** Kısa ömürlü access JWT + rotasyonlu refresh token (veritabanında SHA-256 hash). Refresh token tekrar kullanımı tespit edilirse oturum ailesi iptal edilir. Login denemeleri Redis ile sınırlanır.
-- **Gerçek zamanlı iletişim:** WebSocket bağlantısı 60 saniyelik tek kullanımlık bir *ws-ticket* ile açılır. Kanallar: `room:<id>`, `room:<id>:staff`, `user:<id>`.
+- **Gerçek zamanlı iletişim:** WebSocket bağlantısı 60 saniyelik tek kullanımlık bir _ws-ticket_ ile açılır. Kanallar: `room:<id>`, `room:<id>:staff`, `user:<id>`.
 - **Mesaj yaşam döngüsü:** `PENDING` olarak kaydedilir → içerik taraması → `DELIVERED / FLAGGED / BLOCKED` olarak sonuçlandırılır (ihlal kaydıyla aynı transaction içinde) → odaya yayınlanır. Hata olursa `FAILED` olur ve aynı `clientMessageId` ile güvenle tekrar denenebilir.
 - **Temsilci atama:** Önce çevrimiçi olan, sonra en az aktif odası olan temsilci seçilir. Eşzamanlı atamalar `pg_advisory_xact_lock` ile sıraya sokulur.
 - **Varlık bilgisi (presence):** Redis set'leri ve 20 saniyelik heartbeat.
@@ -56,9 +56,10 @@ chat.message
 - Mesaj içeriği span'lere yazılmaz, sadece ID'ler yazılır (gizlilik).
 
 **Canlı hata senaryosu:** `CHAOS_FAIL_TOKEN` tanımlıyken bu kelimeyi içeren bir mesaj gönderildiğinde tarama aşaması kasıtlı olarak hata verir.
+
 1. Müşteri olarak `__fail__ deneme` yaz → mesaj başarısız görünür.
 2. Loglarda `"stage":"failed"` satırındaki `traceId`'yi al (`docker compose logs backend | grep '"stage"'`).
-3. Jaeger'da *Lookup by Trace ID* → `moderation.scan` span'i kırmızıdır ve hata mesajını içerir.
+3. Jaeger'da _Lookup by Trace ID_ → `moderation.scan` span'i kırmızıdır ve hata mesajını içerir.
 
 **Neden bu yaklaşım?** Mesajlar HTTP değil WebSocket üzerinden geldiği için otomatik HTTP enstrümantasyonu akışı kapsamıyordu; aşamalar elle span olarak tanımlandı. Yerleşik ve açık bir standart olduğu için OpenTelemetry seçildi; ileride Jaeger yerine AWS X-Ray veya Grafana Tempo'ya kod değişmeden geçilebilir.
 
@@ -94,42 +95,42 @@ pnpm start:dev
 
 **Demo hesaplar** (seed ile gelir, şifre `Demo12345`):
 
-| Rol | E-posta |
-|---|---|
-| Admin | admin@trusttrace.dev |
+| Rol      | E-posta                                    |
+| -------- | ------------------------------------------ |
+| Admin    | admin@trusttrace.dev                       |
 | Temsilci | ayse@trusttrace.dev, mehmet@trusttrace.dev |
-| Müşteri | ali@trusttrace.dev, zeynep@trusttrace.dev |
+| Müşteri  | ali@trusttrace.dev, zeynep@trusttrace.dev  |
 
 ## Ortam değişkenleri
 
-| Değişken | Zorunlu | Örnek | Açıklama |
-|---|---|---|---|
-| `NODE_ENV` | Hayır | `development` | `development`, `test` veya `production` |
-| `PORT` | Hayır | `4000` | HTTP portu |
-| `LOG_LEVEL` | Hayır | `info` | `debug`, `info`, `warn`, `error` |
-| `DATABASE_URL` | Evet | `postgres://trusttrace:trusttrace@localhost:5432/trusttrace` | PostgreSQL bağlantısı |
-| `REDIS_URL` | Evet | `redis://localhost:6379` | Redis bağlantısı |
-| `JWT_ACCESS_SECRET` | Evet | en az 32 karakter | Access token imza anahtarı |
-| `JWT_ACCESS_TTL_SECONDS` | Hayır | `900` | Access token ömrü |
-| `JWT_REFRESH_TTL_DAYS` | Hayır | `7` | Refresh token ömrü |
-| `WS_TICKET_SECRET` | Evet | en az 32 karakter | WebSocket bilet imza anahtarı |
-| `OTEL_EXPORTER_OTLP_ENDPOINT` | Hayır | `http://127.0.0.1:4318` | Tanımlıysa span'ler Jaeger'a gönderilir |
-| `CHAOS_FAIL_TOKEN` | Hayır | `__fail__` | Tanımlıysa bu kelimeyi içeren mesajlar kasıtlı hata üretir (demo) |
+| Değişken                      | Zorunlu | Örnek                                                        | Açıklama                                                          |
+| ----------------------------- | ------- | ------------------------------------------------------------ | ----------------------------------------------------------------- |
+| `NODE_ENV`                    | Hayır   | `development`                                                | `development`, `test` veya `production`                           |
+| `PORT`                        | Hayır   | `4000`                                                       | HTTP portu                                                        |
+| `LOG_LEVEL`                   | Hayır   | `info`                                                       | `debug`, `info`, `warn`, `error`                                  |
+| `DATABASE_URL`                | Evet    | `postgres://trusttrace:trusttrace@localhost:5432/trusttrace` | PostgreSQL bağlantısı                                             |
+| `REDIS_URL`                   | Evet    | `redis://localhost:6379`                                     | Redis bağlantısı                                                  |
+| `JWT_ACCESS_SECRET`           | Evet    | en az 32 karakter                                            | Access token imza anahtarı                                        |
+| `JWT_ACCESS_TTL_SECONDS`      | Hayır   | `900`                                                        | Access token ömrü                                                 |
+| `JWT_REFRESH_TTL_DAYS`        | Hayır   | `7`                                                          | Refresh token ömrü                                                |
+| `WS_TICKET_SECRET`            | Evet    | en az 32 karakter                                            | WebSocket bilet imza anahtarı                                     |
+| `OTEL_EXPORTER_OTLP_ENDPOINT` | Hayır   | `http://127.0.0.1:4318`                                      | Tanımlıysa span'ler Jaeger'a gönderilir                           |
+| `CHAOS_FAIL_TOKEN`            | Hayır   | `__fail__`                                                   | Tanımlıysa bu kelimeyi içeren mesajlar kasıtlı hata üretir (demo) |
 
 ## Komutlar
 
-| Komut | Ne yapar |
-|---|---|
-| `pnpm start:dev` | Geliştirme sunucusu (izleme modu) |
-| `pnpm build` | Derleme |
-| `pnpm lint:check` | oxlint + format kontrolü + TypeScript tip kontrolü |
-| `pnpm fmt` | Kodu formatlar |
-| `pnpm db:generate` | Şemadan yeni migration üretir |
-| `pnpm db:migrate` | Migration'ları uygular |
-| `pnpm db:seed` | Demo verileri ekler |
-| `pnpm db:studio` | Drizzle Studio |
+| Komut              | Ne yapar                                                      |
+| ------------------ | ------------------------------------------------------------- |
+| `pnpm start:dev`   | Geliştirme sunucusu (izleme modu)                             |
+| `pnpm build`       | Derleme                                                       |
+| `pnpm lint:check`  | oxlint + format kontrolü + TypeScript tip kontrolü            |
+| `pnpm fmt`         | Kodu formatlar                                                |
+| `pnpm db:generate` | Şemadan yeni migration üretir                                 |
+| `pnpm db:migrate`  | Migration'ları uygular                                        |
+| `pnpm db:seed`     | Demo verileri ekler                                           |
+| `pnpm db:studio`   | Drizzle Studio                                                |
 | `pnpm gen:openapi` | `docs/api/openapi.json` dosyasını günceller (backend açıkken) |
-| `pnpm test:race` | Eşzamanlı temsilci atama testi |
+| `pnpm test:race`   | Eşzamanlı temsilci atama testi                                |
 
 ## Proje yapısı
 
