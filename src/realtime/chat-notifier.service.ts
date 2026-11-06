@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import type { Namespace } from 'socket.io';
-import { userChannel } from '../modules/chat/chat.events';
+import { roomChannel, staffChannel, userChannel } from '../modules/chat/chat.events';
 
 @Injectable()
 export class ChatNotifierService {
@@ -16,5 +16,9 @@ export class ChatNotifierService {
 
   disconnectUser(userId: string): void {
     this.server?.in(userChannel(userId)).disconnectSockets(true);
+  }
+
+  removeFromRoom(userId: string, roomId: string): void {
+    this.server?.in(userChannel(userId)).socketsLeave([roomChannel(roomId), staffChannel(roomId)]);
   }
 }

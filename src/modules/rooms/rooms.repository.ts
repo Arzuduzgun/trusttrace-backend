@@ -81,6 +81,31 @@ export class RoomsRepository {
       throw error;
     }
   }
+  async replaceAgent(roomId: string, currentAgentId: string, newAgentId: string): Promise<void> {
+    await this.db.transaction(async (tx) => {
+      const removed = await tx
+        .delete(roomMembers)
+        .where(
+          and(
+            eq(roomMembers.roomId, roomId),
+            eq(roomMembers.userId, currentAgentId),
+            eq(roomMembers.memberRole, 'AGENT'),
+          ),
+        )
+        .returning({ userId: roomMembers.userId });
+      if (removed.length === 0) {
+        throw new DomainException(ROOM_ERRORS.ROOM_MEMBER_NOT_AGENT);
+      }
+      try {
+        await tx.insert(roomMembers).values({ roomId, userId: newAgentId, memberRole: 'AGENT' });
+      } catch (error) {
+        if (isUniqueViolation(error)) {
+          throw new DomainException(ROOM_ERRORS.ROOM_MEMBER_ALREADY_EXISTS);
+        }
+        throw error;
+      }
+    });
+  }
   async findMemberRole(roomId: string, userId: string): Promise<MemberRole | null> {
     const [row] = await this.db
       .select({ memberRole: roomMembers.memberRole })

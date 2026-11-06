@@ -5,10 +5,12 @@ import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import { Roles } from '../../common/decorators/roles.decorator';
 import type { User } from '../users/types/users.types';
 import { AddMemberDto } from './dto/add-member.dto';
+import { ReplaceAgentDto } from './dto/replace-agent.dto';
 import { CreateRoomDto } from './dto/create-room.dto';
 import { RoomResponseDto } from './dto/room-response.dto';
 import { RoomsService } from './rooms.service';
 import { RoomStatusService } from './room-status.service';
+import { RoomAgentsService } from './room-agents.service';
 import { UpdateRoomStatusDto } from './dto/update-room-status.dto';
 
 @ApiTags('Admin – Rooms')
@@ -19,6 +21,7 @@ export class AdminRoomsController {
   constructor(
     private readonly roomsService: RoomsService,
     private readonly roomStatusService: RoomStatusService,
+    private readonly roomAgentsService: RoomAgentsService,
   ) {}
 
   @Post()
@@ -32,6 +35,17 @@ export class AdminRoomsController {
   @ApiResponse({ status: 204 })
   addMember(@Param('id', ParseUUIDPipe) roomId: string, @Body() dto: AddMemberDto): Promise<void> {
     return this.roomsService.addMember(roomId, dto.userId);
+  }
+
+  @Post(':id/agents/:agentId/replace')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiResponse({ status: 204 })
+  replaceAgent(
+    @Param('id', ParseUUIDPipe) roomId: string,
+    @Param('agentId', ParseUUIDPipe) agentId: string,
+    @Body() dto: ReplaceAgentDto,
+  ): Promise<void> {
+    return this.roomAgentsService.replaceAgent(roomId, agentId, dto.newAgentId);
   }
 
   @Post(':id/status')

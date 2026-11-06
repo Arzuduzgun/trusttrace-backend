@@ -37,4 +37,14 @@ export const ROOM_ERRORS = {
     status: HttpStatus.BAD_REQUEST,
     message: 'Seçilen kişi bu odanın müşterisi değil.',
   },
+  ROOM_MEMBER_NOT_AGENT: {
+    code: 'ROOM_MEMBER_NOT_AGENT',
+    status: HttpStatus.BAD_REQUEST,
+    message: 'Seçilen kişi bu odanın temsilcisi değil.',
+  },
+  ROOM_INVALID_AGENT: {
+    code: 'ROOM_INVALID_AGENT',
+    status: HttpStatus.BAD_REQUEST,
+    message: 'Yeni temsilci aktif bir temsilci olmalı ve mevcut temsilciden farklı olmalı.',
+  },
 } as const satisfies ErrorCatalog;
