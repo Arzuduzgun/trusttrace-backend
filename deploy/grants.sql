@@ -1,0 +1,13 @@
+CREATE ROLE trusttrace_app LOGIN PASSWORD :'app_password';
+
+GRANT CONNECT ON DATABASE trusttrace TO trusttrace_app;
+GRANT USAGE ON SCHEMA public TO trusttrace_app;
+GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO trusttrace_app;
+GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO trusttrace_app;
+
+REVOKE UPDATE, DELETE, TRUNCATE ON moderation_events FROM trusttrace_app;
+
+ALTER DEFAULT PRIVILEGES FOR ROLE trusttrace IN SCHEMA public
+  GRANT SELECT, INSERT, UPDATE, DELETE ON TABLES TO trusttrace_app;
+ALTER DEFAULT PRIVILEGES FOR ROLE trusttrace IN SCHEMA public
+  GRANT USAGE, SELECT ON SEQUENCES TO trusttrace_app;

@@ -1,0 +1,15 @@
+{
+	email {$CADDY_EMAIL}
+}
+
+{$DOMAIN} {
+	@backend path /api/* /socket.io/* /health/* /docs /docs/* /docs-json
+
+	handle @backend {
+		reverse_proxy backend:4000
+	}
+
+	handle {
+		reverse_proxy frontend:3000
+	}
+}
