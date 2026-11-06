@@ -81,7 +81,12 @@ export class RoomsRepository {
       throw error;
     }
   }
-  async replaceAgent(roomId: string, currentAgentId: string, newAgentId: string): Promise<void> {
+  async replaceAgent(
+    roomId: string,
+    currentAgentId: string,
+    newAgentId: string,
+    newName: string | null,
+  ): Promise<void> {
     await this.db.transaction(async (tx) => {
       const removed = await tx
         .delete(roomMembers)
@@ -96,13 +101,9 @@ export class RoomsRepository {
       if (removed.length === 0) {
         throw new DomainException(ROOM_ERRORS.ROOM_MEMBER_NOT_AGENT);
       }
-      try {
-        await tx.insert(roomMembers).values({ roomId, userId: newAgentId, memberRole: 'AGENT' });
-      } catch (error) {
-        if (isUniqueViolation(error)) {
-          throw new DomainException(ROOM_ERRORS.ROOM_MEMBER_ALREADY_EXISTS);
-        }
-        throw error;
+      await tx.insert(roomMembers).values({ roomId, userId: newAgentId, memberRole: 'AGENT' });
+      if (newName) {
+        await tx.update(rooms).set({ name: newName }).where(eq(rooms.id, roomId));
       }
     });
   }

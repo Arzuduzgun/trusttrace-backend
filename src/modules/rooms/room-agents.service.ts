@@ -27,8 +27,19 @@ export class RoomAgentsService {
     if (newAgent.role !== 'AGENT' || newAgent.status !== 'ACTIVE') {
       throw new DomainException(ROOM_ERRORS.ROOM_INVALID_AGENT);
     }
-    await this.roomsRepository.replaceAgent(room.id, currentAgentId, newAgent.id);
+    if (await this.roomsRepository.findMemberRole(room.id, newAgent.id)) {
+      throw new DomainException(ROOM_ERRORS.ROOM_MEMBER_ALREADY_EXISTS);
+    }
+    const newName =
+      room.type === 'DIRECT' ? await this.directRoomName(room.id, newAgent.displayName) : null;
+    await this.roomsRepository.replaceAgent(room.id, currentAgentId, newAgent.id, newName);
     this.chatNotifier.removeFromRoom(currentAgentId, room.id);
-    await this.notificationsService.notifyRoomAssigned(newAgent.id, room.id, room.name);
+    await this.notificationsService.notifyRoomAssigned(newAgent.id, room.id, newName ?? room.name);
+  }
+
+  private async directRoomName(roomId: string, agentName: string): Promise<string | null> {
+    const members = await this.roomsRepository.listMembers(roomId);
+    const customer = members.find((member) => member.memberRole === 'CUSTOMER');
+    return customer ? `${customer.displayName} – ${agentName}` : null;
   }
 }
